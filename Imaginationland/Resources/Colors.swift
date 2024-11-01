@@ -23,6 +23,10 @@ extension UIColor {
     )
   }
 
+  static var buttonTintColor: UIColor {
+    Color.basicPink.asUiColor
+  }
+
   static var yellowishTintColor: UIColor {
     .systemYellow
   }

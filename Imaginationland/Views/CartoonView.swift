@@ -8,14 +8,15 @@ class CartoonView: View {
 
   let cartoonist: Cartoonist
 
-  var cartoon: Cartoon { didSet { cartoonUpdated() } }
-  var isPlaying: Bool { didSet { isPlayingUpdated() } }
+  var table: Cartoonist.Table
 
   var rasterizedShots: [UIImage] = []
 
   private let titleLabel = UILabel.large
-    .with(textColor: .systemPurple)
-    .with(text: "Всё, что ниже — холст")
+    .with(textColor: .buttonTintColor)
+    .with(text: "Где Пирожок?")
+
+  private lazy var brushChooserView = BrushChooserView(cartoonist: cartoonist)
 
   private let buttons = (
     undo: UIButton.iconic(image: .undoIcon),
@@ -26,7 +27,7 @@ class CartoonView: View {
     deleteShot: UIButton.iconic(image: .trashcanIcon),
     play: UIButton.iconic(
       images: [.normal: .playIcon, .selected: .stopIcon],
-      tintColors: [.normal: .systemPurple]
+      tintColors: [.normal: .buttonTintColor]
     )
   )
 
@@ -34,11 +35,11 @@ class CartoonView: View {
     image: .canvasBackground, 
     size: nil
   )
-  .with(contentMode: .scaleAspectFill)
+  .with(contentMode: .scaleAspectFit)
 
-  private lazy var canvasView = CanvasView(userActionsListener: cartoonist)
+  private lazy var canvasView = CanvasView(cartoonist: cartoonist)
 
-  private lazy var previousCanvasView = CanvasView(userActionsListener: cartoonist)
+  private lazy var previousCanvasView = CanvasView(cartoonist: cartoonist)
 
   private let canvasBackgroundView = UIImageView.imageView(
     image: .canvasBackground,
@@ -52,62 +53,40 @@ class CartoonView: View {
 
   init(cartoonist: Cartoonist) {
     self.cartoonist = cartoonist
-    self.cartoon = cartoonist.table.cartoon
-    self.isPlaying = cartoonist.table.isPlaying
+    self.table = cartoonist.table
 
     super.init()
 
-    backgroundColor = .yellowishTintColor
-
-    addTitleLabel()
-    setupCanvas()
-    setupButtons()
-
+    addSubviews()
     bindToCartoonist()
   }
 
-  private func bindToCartoonist() {
-    tableUpdated(cartoonist.table)
-
-    Task { @MainActor in
-      for await newTable in cartoonist.asyncTable {
-        self.tableUpdated(newTable)
-      }
-    }
-  }
-
-  private func tableUpdated(_ newTable: Cartoonist.Table) {
-    cartoon = newTable.cartoon
-    isPlaying = newTable.isPlaying
-
-    buttons.appendShot.isEnabled = newTable.canAppendShot
-    buttons.deleteShot.isEnabled = newTable.canDeleteLastShot
-    
-    buttons.play.isEnabled = newTable.canPlayCartoon
-    buttons.play.isSelected = newTable.isPlaying
-
-    buttons.undo.isEnabled = newTable.canUndo
-    buttons.redo.isEnabled = newTable.canRedo
-
-    buttons.brush.isSelected = newTable.filling != .eraser
-    buttons.eraser.isSelected = newTable.filling == .eraser
+  private func addSubviews() {
+    addTitleLabel()
+    addCanvas()
+    addPlaybackView()
+    addButtons()
   }
 
   private func addTitleLabel() {
     addSubview(titleLabel)
 
     titleLabel.snp.makeConstraints {
-      $0.top.equalToSuperview().offset(100)
+      $0.top.equalToSuperview().offset(70)
       $0.centerX.equalToSuperview()
       $0.left.greaterThanOrEqualToSuperview().offset(16)
     }
   }
 
-  private func setupCanvas() {
+  private func addCanvas() {
     addSubview(canvasView)
     canvasView.snp.makeConstraints {
       $0.top.equalTo(titleLabel.snp.bottom).offset(Paddings.medium)
       $0.leading.trailing.equalToSuperview()
+    }
+
+    canvasView.cgSizeListeners.append { [cartoonist] in
+      cartoonist ! .changeCanvasViewSize($0)
     }
 
     insertSubview(canvasBackgroundView, belowSubview: canvasView)
@@ -121,23 +100,29 @@ class CartoonView: View {
       $0.edges.equalTo(canvasView)
     }
 
+    let pearlBackground = PearlView()
+    insertSubview(pearlBackground, belowSubview: titleLabel)
+    pearlBackground.snp.makeConstraints {
+      $0.top.leading.trailing.equalToSuperview()
+      $0.bottom.equalTo(canvasView.snp.top)
+    }
+  }
+
+  private func addPlaybackView() {
     playbackView.isHidden = true
     addSubview(playbackView)
     playbackView.snp.makeConstraints {
       $0.edges.equalTo(canvasView)
     }
-
-    cartoon.shots.forEach {
-      canvasView.shot = $0
-      canvasView.draw(UIScreen.main.bounds)
-      rasterizedShots += canvasView.rasterizedShot.asArray
-    }
-
-    canvasView.shot = cartoon.shots.last!
-    previousCanvasView.shot = cartoon.shots.dropLast().last ?? .empty
   }
 
-  private func setupButtons() {
+  private func addButtons() {
+    addSubview(brushChooserView)
+    brushChooserView.snp.makeConstraints {
+      $0.top.equalTo(canvasView.snp.bottom)
+      $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+    }
+
     let buttonsPanel = UIView.horizontalStack(
       distribution: .fillEqually,
       subviews: [
@@ -153,8 +138,15 @@ class CartoonView: View {
 
     addSubview(buttonsPanel)
     buttonsPanel.snp.makeConstraints {
-      $0.top.equalTo(canvasView.snp.bottom)
+      $0.top.equalTo(brushChooserView.snp.bottom)
       $0.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
+    }
+
+    let pearlBackground = PearlView()
+    insertSubview(pearlBackground, belowSubview: brushChooserView)
+    pearlBackground.snp.makeConstraints {
+      $0.top.equalTo(brushChooserView)
+      $0.bottom.leading.trailing.equalToSuperview()
     }
 
     bind(button: buttons.undo, toAction: #selector(undoHatch))
@@ -175,97 +167,112 @@ class CartoonView: View {
     )
   }
 
-  @objc
-  private func undoHatch() {
+  @objc private func undoHatch() {
     cartoonist ! .undoHatch
   }
 
-  @objc
-  private func redoHatch() {
+  @objc private func redoHatch() {
     cartoonist ! .redoHatch
   }
 
-  @objc
-  private func enableBrush() {
-    cartoonist ! .enableFilling(.color(.basic))
+  @objc private func enableBrush() {
+    cartoonist ! .enableFilling(.color(cartoonist.table.choosedColor))
   }
 
-  @objc
-  private func enableEraser() { 
+  @objc private func enableEraser() {
     cartoonist ! .enableFilling(.eraser)
   }
 
-  private func cartoonUpdated() {
-    canvasView.shot = cartoon.shots.last!
-    previousCanvasView.shot = cartoon.shots.dropLast().last ?? .empty
+  @objc private func appendShot() {
+    cartoonist ! .appendShot
+  }
+
+  @objc private func deleteShot() {
+    cartoonist ! .deleteLastShot
+  }
+
+  @objc private func play() {
+    cartoonist ! (table.isPlaying ? .stopPlaying : .play)
+  }
+
+  private func bindToCartoonist() {
+    cartoonist.listenForTable { [weak self] in self?.tableUpdated($0) }
+  }
+
+  private func tableUpdated(_ newTable: Cartoonist.Table) {
+    print("Cartoon's view needs to update.")
+    table = newTable
+
+    updateCanvasViews()
+    updatePlaybackView()
+    updateBrushChooserView()
+    updateButtons()
+  }
+
+  private func updateCanvasViews() {
+    canvasView.isHidden = table.isPlaying
+    previousCanvasView.isHidden = table.isPlaying
+
+    canvasView.shot = table.cartoon.shots.last!
+    previousCanvasView.shot = table.cartoon.shots.dropLast().last ?? .empty
     canvasView.setNeedsDisplay()
     previousCanvasView.setNeedsDisplay()
   }
 
-  private func isPlayingUpdated() {
-    if isPlaying {
-      playbackView.isHidden = false
-      canvasView.isHidden = true
-      previousCanvasView.isHidden = true
+  private func updatePlaybackView() {
+    playbackView.isHidden = !table.isPlaying
 
+    if table.isPlaying {
       updateCartoonCache()
 
       playbackView.animationImages = rasterizedShots
-      playbackView.animationDuration = cartoon.duration
+      playbackView.animationDuration = table.cartoon.duration
       playbackView.animationRepeatCount = .max
 
       playbackView.startAnimating()
     } else {
       playbackView.stopAnimating()
-      playbackView.isHidden = true
-      canvasView.isHidden = false
-      previousCanvasView.isHidden = false
     }
   }
 
-  @objc
-  private func appendShot() {
-    cartoonist ! .appendShot
+  private func updateBrushChooserView() {
+//    brushChooserView.isHidden = table.filling == .eraser
+    brushChooserView.alpha = (table.filling == .eraser) ? 0.25 : 1
+    brushChooserView.isUserInteractionEnabled = (table.filling != .eraser)
   }
 
-  @objc
-  private func deleteShot() {
-    cartoonist ! .deleteLastShot
+  private func updateButtons() {
+    buttons.appendShot.isEnabled = table.canAppendShot
+    buttons.deleteShot.isEnabled = table.canDeleteLastShot
+
+    buttons.play.isEnabled = table.canPlayCartoon
+    buttons.play.isSelected = table.isPlaying
+
+    buttons.undo.isEnabled = table.canUndo
+    buttons.redo.isEnabled = table.canRedo
+
+    buttons.brush.isSelected = table.filling != .eraser
+    buttons.eraser.isSelected = table.filling == .eraser
   }
 
-  @objc
-  private func play() {
-    cartoonist ! (isPlaying ? .stopPlaying : .play)
-  }
+  override var frame: CGRect { didSet { updateCartoonCache() } }
 
-  override var frame: CGRect {
-    didSet { updateCartoonCache() }
-  }
-
-  override var bounds: CGRect {
-    didSet { updateCartoonCache() }
-  }
+  override var bounds: CGRect { didSet { updateCartoonCache() } }
 
   private func updateCartoonCache() {
-    guard frame.width != 0 && frame.height != 0 else { return }
+    guard canvasView.frame.width != 0 && canvasView.frame.height != 0 else { return }
 
-    print("Cartoon hatches count: \(cartoon.hatches.count)")
-    print("Cartoon segments count: \(cartoon.segments.count)")
+    print("Cartoon hatches count: \(table.cartoon.hatches.count)")
+    print("Cartoon segments count: \(table.cartoon.segments.count)")
 
     let startMoment = Date()
 
-    let canvasWidth = 1000
-
-    let canvasFrame = Rect(
-      origin: .zero,
-      size: .init(
-        width: canvasWidth,
-        height: Int(CGFloat(canvasWidth) * (frame.height / frame.width))
+    rasterizedShots = table.cartoon.shots.map {
+      build(
+        shot: $0,
+        frame: table.canvasFrame,
+        cgSize: table.canvasViewSize
       )
-    )
-
-    rasterizedShots = cartoon.shots.map {
-      build(shot: $0, frame: canvasFrame, cgSize: bounds.size)
     }
 
     let rasterizationFinish = Date()
@@ -280,6 +287,9 @@ class CartoonView: View {
   private func build(shot: Shot,
                      frame: Rect,
                      cgSize: CGSize) -> UIImage {
+    guard cgSize.width > 0 && cgSize.height > 0
+    else { return UIImage() }
+
     let scale = UIScreen.main.scale
 
     UIGraphicsBeginImageContextWithOptions(cgSize, false, scale)

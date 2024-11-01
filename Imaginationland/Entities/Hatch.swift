@@ -11,14 +11,14 @@ struct Hatch: Equatable, Hashable, Codable, Buildable {
 
   static let basic = Hatch(
     brush: .main, 
-    filling: .color(.basic),
+    filling: .color(.default),
     segments: []
   )
 
   static func basic(firstSegment: Segment) -> Hatch {
     .init (
       brush: .main,
-      filling: .color(.basic),
+      filling: .color(.default),
       segments: [firstSegment]
     )
   }

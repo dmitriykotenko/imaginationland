@@ -1,5 +1,6 @@
 // @ Dmitry Kotenko
 
+import CoreGraphics
 import Foundation
 
 
@@ -18,4 +19,15 @@ enum UserAction: Equatable, Hashable, Codable, Buildable {
 
   case play
   case stopPlaying
+
+  case changeCanvasViewSize(CGSize)
+}
+
+
+extension CGSize: Hashable {
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(width)
+    hasher.combine(height)
+  }
 }

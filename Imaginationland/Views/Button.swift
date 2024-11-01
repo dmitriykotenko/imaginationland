@@ -15,6 +15,8 @@ class Button: UIButton {
   private func displayState() {
     tintColor = tintColors[state] ?? tintColors[.normal]
     alpha = isEnabled ? 1 : 0.5
+
+    transform = isSelected ? .init(scaleX: 1.5, y: 1.5) : .identity
   }
 }
 

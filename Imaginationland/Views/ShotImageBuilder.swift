@@ -28,6 +28,15 @@ struct ShotImageBuilder {
     context.setLineCap(.round)
     context.setLineJoin(.round)
     shot.hatches.forEach(draw(hatch:))
+//
+//    context.setLineWidth(6)
+//    context.setStrokeColor(UIColor.systemMint.cgColor)
+//    context.move(to: cgFrame.topLeftCorner)
+//    context.addLine(to: cgFrame.topRightCorner)
+//    context.addLine(to: cgFrame.bottomRightCorner)
+//    context.addLine(to: cgFrame.bottomLeftCorner)
+//    context.addLine(to: cgFrame.topLeftCorner)
+//    context.strokePath()
   }
 
   private func draw(hatch: Hatch) {

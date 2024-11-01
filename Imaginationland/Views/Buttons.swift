@@ -15,8 +15,8 @@ extension UIButton {
 
   static func iconic(image: UIImage?,
                      tintColors: [UIControl.State: UIColor] = [
-                      .normal: .systemPurple,
-                      .selected: .systemGreen
+                      .normal: .buttonTintColor,
+                      .selected: .buttonTintColor.withBrightnessMultiplied(by: 0.9)
                      ],
                      width: CGFloat = 60,
                      height: CGFloat = 44) -> UIButton {
@@ -30,7 +30,7 @@ extension UIButton {
 
   static func iconic(images: [UIControl.State: UIImage?],
                      tintColors: [UIControl.State: UIColor] = [
-                      .normal: .systemPurple,
+                      .normal: .buttonTintColor,
                       .selected: .systemPink
                      ],
                      width: CGFloat = 60,
@@ -122,6 +122,12 @@ extension UIButton {
 
   func with(contentEdgeInsets: UIEdgeInsets) -> Self {
     self.contentEdgeInsets = contentEdgeInsets
+    return self
+  }
+
+  func with(cornerRadius: CGFloat) -> Self {
+    self.layer.masksToBounds = true
+    self.layer.cornerRadius = cornerRadius
     return self
   }
 }

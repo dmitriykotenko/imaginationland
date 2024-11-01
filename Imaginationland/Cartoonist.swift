@@ -7,30 +7,61 @@ class Cartoonist: UserActionsListener {
 
   struct Table {
     var cartoon: Cartoon = .init(shots: [.empty], shotsPerSecond: 5)
-    var filling: Filling = .color(.basic)
+    var filling: Filling = .color(.default)
+    var choosedColor: Color = .default
     var isPlaying: Bool = false
-    
+
+    var canvasViewSize: CGSize = .zero
+
+    private let canvasWidth = 1000
+
+    private var canvasHeight: Int {
+      if canvasViewSize.width == 0 {
+        1
+      } else {
+        Int(CGFloat(canvasWidth) * (canvasViewSize.height / canvasViewSize.width))
+      }
+    }
+
+    var canvasFrame: Rect {
+      .init(
+        origin: .zero,
+        size: .init(
+          width: canvasWidth,
+          height: canvasHeight
+        )
+      )
+    }
+
     fileprivate var currentHatch: Hatch?
     fileprivate var undoedHatches: [Hatch] = []
 
     var currentShot: Shot? { cartoon.lastShot }
-    var canUndo: Bool { currentShot?.hatches.isNotEmpty == true }
-    var canRedo: Bool { undoedHatches.isNotEmpty }
+    var canUndo: Bool { !isPlaying && currentShot?.hatches.isNotEmpty == true }
+    var canRedo: Bool { !isPlaying && undoedHatches.isNotEmpty }
     
-    var canAppendShot: Bool{ true }
-    var canDeleteLastShot: Bool { cartoon.shots.count > 1 }
+    var canAppendShot: Bool{ !isPlaying }
+    var canDeleteLastShot: Bool { !isPlaying && cartoon.shots.count > 1 }
     var canPlayCartoon: Bool { cartoon.shots.count > 1 && cartoon.hatches.isNotEmpty }
   }
 
   private(set) var table: Table = .init() {
     didSet {
-      tableStreamContinuation.yield(table)
+      print("Cartoonist did update table.")
+      notifyTableListeners()
     }
   }
 
-  var asyncTable: AsyncStream<Table> { tableStream }
+  private func notifyTableListeners() {
+    tableListeners.forEach { $0(table) }
+  }
 
-  private let (tableStream, tableStreamContinuation) = AsyncStream.makeStream(of: Table.self)
+  func listenForTable(_ listener: @escaping (Table) -> Void) {
+    tableListeners.append(listener)
+    listener(table)
+  }
+
+  private var tableListeners: [(Table) -> Void] = []
 
   func process(userAction: UserAction) {
     print("UserAction ---> \(userAction)")
@@ -79,10 +110,17 @@ class Cartoonist: UserActionsListener {
       table.cartoon.lastShot?.hatches += hatchToRedo.asArray
     case .enableFilling(let filling):
       table.filling = filling
+      table.filling = filling
+
+      if case .color(let color) = filling {
+        table.choosedColor = color
+      }
     case .play:
       table.isPlaying = true
     case .stopPlaying:
       table.isPlaying = false
+    case .changeCanvasViewSize(let newSize):
+      table.canvasViewSize = newSize
     }
   }
 

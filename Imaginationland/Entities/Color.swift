@@ -20,12 +20,14 @@ struct Color: Equatable, Hashable, Codable, Buildable {
     )
   }
 
-  static let basic = Color(
-    red: 255,
-    green: 0,
-    blue: 98,
-    alpha: 1
-  )
+  static let `default` = Color.black
+
+  static let white = Color(red: 255, green: 255, blue: 255, alpha: 1)
+  static let black = Color(red: 0, green: 0, blue: 0, alpha: 1)
+  static let red = Color(red: 255, green: 61, blue: 0, alpha: 1)
+  static let blue = Color(red: 25, green: 118, blue: 210, alpha: 1)
+
+  static let basicPink = Color(red: 255, green: 0, blue: 98, alpha: 1)
 
   func mixed(with other: Color,
              selfPortion: Double) -> Color {

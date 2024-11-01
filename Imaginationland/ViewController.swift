@@ -7,7 +7,7 @@ import UIKit
 class ViewController: UIViewController {
 
   private let label = UILabel.large
-    .with(textColor: .systemPurple)
+    .with(textColor: .buttonTintColor)
     .with(text: "Всё, что ниже — холст")
 
   private lazy var cartoonView = CartoonView(cartoonist: cartoonist)

@@ -65,6 +65,8 @@
 		5BE5B8542CD439C800304C16 /* Cartoonist.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B8532CD439C800304C16 /* Cartoonist.swift */; };
 		5BE5B8562CD43F3800304C16 /* Factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B8552CD43F3800304C16 /* Factory.swift */; };
 		5BE5B8582CD4455D00304C16 /* UserActionsListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B8572CD4455D00304C16 /* UserActionsListener.swift */; };
+		5BE5B85A2CD4D86F00304C16 /* BrushChooserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B8592CD4D86F00304C16 /* BrushChooserView.swift */; };
+		5BE5B85C2CD541E800304C16 /* PearlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B85B2CD541E800304C16 /* PearlView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -146,6 +148,8 @@
 		5BE5B8532CD439C800304C16 /* Cartoonist.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Cartoonist.swift; sourceTree = "<group>"; };
 		5BE5B8552CD43F3800304C16 /* Factory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Factory.swift; sourceTree = "<group>"; };
 		5BE5B8572CD4455D00304C16 /* UserActionsListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserActionsListener.swift; sourceTree = "<group>"; };
+		5BE5B8592CD4D86F00304C16 /* BrushChooserView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrushChooserView.swift; sourceTree = "<group>"; };
+		5BE5B85B2CD541E800304C16 /* PearlView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PearlView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -280,6 +284,8 @@
 				5B616D722CD380EC0057B1FF /* ShotImageBuilder.swift */,
 				5B616D6C2CD37ECA0057B1FF /* ShotDrawerV1.swift */,
 				5B616D662CD2E19B0057B1FF /* CartoonView.swift */,
+				5BE5B85B2CD541E800304C16 /* PearlView.swift */,
+				5BE5B8592CD4D86F00304C16 /* BrushChooserView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -452,10 +458,12 @@
 				5B616D4D2CD177F50057B1FF /* Point.swift in Sources */,
 				5B616D512CD179440057B1FF /* Shot.swift in Sources */,
 				5B616CE92CD16B6D0057B1FF /* ViewController.swift in Sources */,
+				5BE5B85C2CD541E800304C16 /* PearlView.swift in Sources */,
 				5B616D6F2CD37ED70057B1FF /* PointConverter.swift in Sources */,
 				5B616D3F2CD16CDA0057B1FF /* NumberFormatters.swift in Sources */,
 				5B616D772CD38D4D0057B1FF /* Cartoon+chatGptSamples.swift in Sources */,
 				5B616D332CD16CBD0057B1FF /* Button.swift in Sources */,
+				5BE5B85A2CD4D86F00304C16 /* BrushChooserView.swift in Sources */,
 				5B616D612CD181150057B1FF /* CGPoint+.swift in Sources */,
 				5B616D372CD16CBD0057B1FF /* UIResponder+.swift in Sources */,
 				5B616D4F2CD179090057B1FF /* Filling.swift in Sources */,

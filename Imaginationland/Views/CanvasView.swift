@@ -11,6 +11,8 @@ class CanvasView: View {
 
   var rasterizedShot: UIImage?
 
+  var cgSizeListeners: [(CGSize) -> Void] = []
+
   let canvasWidth = 1000
 
   var canvasHeight: Int {
@@ -31,12 +33,12 @@ class CanvasView: View {
     .init(canvasFrame: canvasFrame, cgFrame: frame)
   }
 
-  private weak var userActionsListener: UserActionsListener?
+  private let cartoonist: Cartoonist
 
   required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
-  init(userActionsListener: UserActionsListener) {
-    self.userActionsListener = userActionsListener
+  init(cartoonist: Cartoonist) {
+    self.cartoonist = cartoonist
 
     super.init()
     isOpaque = false
@@ -95,7 +97,7 @@ class CanvasView: View {
     case .ended:
       appendHatchSegment()
       previosPanLocation = nil
-      userActionsListener?.process(userAction: .commitHatch)
+      cartoonist ! .commitHatch
     case .cancelled:
       break
     case .failed:
@@ -115,19 +117,17 @@ class CanvasView: View {
     case .changed:
       break
     case .ended:
-      userActionsListener?.process(
-        userAction: .addHatchSegment(
-          .line(
-            .init(
-              start: tapLocation,
-              end: tapLocation
-            )
-          ),
-          toShot: shot
-        )
+      cartoonist ! .addHatchSegment(
+        .line(
+          .init(
+            start: tapLocation,
+            end: tapLocation
+          )
+        ),
+        toShot: shot
       )
 
-      userActionsListener?.process(userAction: .commitHatch)
+      cartoonist ! .commitHatch
     case .cancelled:
       break
     case .failed:
@@ -138,13 +138,11 @@ class CanvasView: View {
   }
 
   private func appendHatchSegment() {
-    userActionsListener?.process(
-      userAction: .addHatchSegment(
-        .line(
-          .init(start: previosPanLocation ?? panLocation, end: panLocation)
-        ),
-        toShot: shot
-      )
+    cartoonist ! .addHatchSegment(
+      .line(
+        .init(start: previosPanLocation ?? panLocation, end: panLocation)
+      ),
+      toShot: shot
     )
   }
 
@@ -165,5 +163,21 @@ class CanvasView: View {
     )
 
     rasterizedShot = drawer.draw()
+  }
+
+  override var bounds: CGRect {
+    didSet {
+      if bounds.size != oldValue.size {
+        cgSizeListeners.forEach { $0(bounds.size) }
+      }
+    }
+  }
+
+  override var frame: CGRect {
+    didSet {
+      if bounds.size != oldValue.size {
+        cgSizeListeners.forEach { $0(bounds.size) }
+      }
+    }
   }
 }

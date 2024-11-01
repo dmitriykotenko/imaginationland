@@ -18,6 +18,8 @@ extension UIImage {
   static let playIcon = UIImage(named: "play.pdf")!
   static let stopIcon = UIImage(named: "stop.pdf")!
 
+  static let tranclucentBackgroundBase = UIImage(named: "green-blue-pearl.png")!
+
   // MARK: - Salieri
   static let guitarIcon = UIImage(named: "guitar-icon.pdf")!
   static let drumIcon = UIImage(named: "drum-icon.pdf")!
