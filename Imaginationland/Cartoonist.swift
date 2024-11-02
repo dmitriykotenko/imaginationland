@@ -6,7 +6,9 @@ import Foundation
 class Cartoonist: UserActionsListener {
 
   struct Table {
-    var cartoon: Cartoon = .init(shots: [.empty], shotsPerSecond: 5)
+    var cartoon: Cartoon = .chatGptSample8
+//    var cartoon: Cartoon = .init(shots: [.empty], shotsPerSecond: 5)
+
     var filling: Filling = .color(.default)
     var choosedColor: Color = .default
     var isPlaying: Bool = false
@@ -43,6 +45,10 @@ class Cartoonist: UserActionsListener {
     var canAppendShot: Bool{ !isPlaying }
     var canDeleteLastShot: Bool { !isPlaying && cartoon.shots.count > 1 }
     var canPlayCartoon: Bool { cartoon.shots.count > 1 && cartoon.hatches.isNotEmpty }
+
+    func isCompatible(with cache: ShotsCache?) -> Bool {
+      cache?.canvasSize == canvasFrame.size && cache?.cgSize == canvasViewSize 
+    }
   }
 
   private(set) var table: Table = .init() {

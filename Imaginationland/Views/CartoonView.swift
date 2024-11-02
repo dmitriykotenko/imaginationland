@@ -12,24 +12,12 @@ class CartoonView: View {
 
   var rasterizedShots: [UIImage] = []
 
+  var rasterizationCache: ShotsCache?
+  
+
   private let titleLabel = UILabel.large
     .with(textColor: .buttonTintColor)
     .with(text: "Где Пирожок?")
-
-  private lazy var brushChooserView = BrushChooserView(cartoonist: cartoonist)
-
-  private let buttons = (
-    undo: UIButton.iconic(image: .undoIcon),
-    redo: UIButton.iconic(image: .redoIcon),
-    brush: UIButton.iconic(image: .brushIcon),
-    eraser: UIButton.iconic(image: .eraserIcon),
-    appendShot: UIButton.iconic(image: .pictureIcon),
-    deleteShot: UIButton.iconic(image: .trashcanIcon),
-    play: UIButton.iconic(
-      images: [.normal: .playIcon, .selected: .stopIcon],
-      tintColors: [.normal: .buttonTintColor]
-    )
-  )
 
   private let playbackView = UIImageView.imageView(
     image: .canvasBackground, 
@@ -47,9 +35,22 @@ class CartoonView: View {
   )
   .with(contentMode: .scaleAspectFill)
 
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
+  private lazy var brushChooserView = BrushChooserView(cartoonist: cartoonist)
+
+  private let buttons = (
+    undo: UIButton.iconic(image: .undoIcon),
+    redo: UIButton.iconic(image: .redoIcon),
+    brush: UIButton.iconic(image: .brushIcon),
+    eraser: UIButton.iconic(image: .eraserIcon),
+    appendShot: UIButton.iconic(image: .pictureIcon),
+    deleteShot: UIButton.iconic(image: .trashcanIcon),
+    play: UIButton.iconic(
+      images: [.normal: .playIcon, .selected: .stopIcon],
+      tintColors: [.normal: .buttonTintColor]
+    )
+  )
+
+  required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
   init(cartoonist: Cartoonist) {
     self.cartoonist = cartoonist
@@ -114,6 +115,8 @@ class CartoonView: View {
     playbackView.snp.makeConstraints {
       $0.edges.equalTo(canvasView)
     }
+
+    playbackView.animationRepeatCount = .max
   }
 
   private func addButtons() {
@@ -201,8 +204,12 @@ class CartoonView: View {
 
   private func tableUpdated(_ newTable: Cartoonist.Table) {
     print("Cartoon's view needs to update.")
+    print("Cartoon hatches count: \(table.cartoon.hatches.count)")
+    print("Cartoon segments count: \(table.cartoon.segments.count)")
+
     table = newTable
 
+    updateRasterizationCache()
     updateCanvasViews()
     updatePlaybackView()
     updateBrushChooserView()
@@ -220,23 +227,39 @@ class CartoonView: View {
   }
 
   private func updatePlaybackView() {
+    initRasterizationsForPlaybackView()
+    addLastShotToPlaybackView()
+
     playbackView.isHidden = !table.isPlaying
 
     if table.isPlaying {
-      updateCartoonCache()
-
-      playbackView.animationImages = rasterizedShots
       playbackView.animationDuration = table.cartoon.duration
-      playbackView.animationRepeatCount = .max
-
       playbackView.startAnimating()
     } else {
       playbackView.stopAnimating()
     }
   }
 
+  private func initRasterizationsForPlaybackView() {
+    guard let rasterizationCache else { return }
+
+    if playbackView.animationImages == nil {
+      playbackView.animationImages = 
+        table.cartoon.shots.compactMap { rasterizationCache.rasterizedVersion(of: $0) }
+    }
+  }
+
+  private func addLastShotToPlaybackView() {
+    guard let rasterizedShot = rasterizedVersionOfLastShot else { return }
+
+    if playbackView.animationImages?.count != table.cartoon.shots.count {
+      playbackView.animationImages = (playbackView.animationImages ?? []) + [rasterizedShot]
+    } else {
+      playbackView.animationImages![playbackView.animationImages!.count - 1] = rasterizedShot
+    }
+  }
+
   private func updateBrushChooserView() {
-//    brushChooserView.isHidden = table.filling == .eraser
     brushChooserView.alpha = (table.filling == .eraser) ? 0.25 : 1
     brushChooserView.isUserInteractionEnabled = (table.filling != .eraser)
   }
@@ -255,61 +278,25 @@ class CartoonView: View {
     buttons.eraser.isSelected = table.filling == .eraser
   }
 
-  override var frame: CGRect { didSet { updateCartoonCache() } }
+  private func updateRasterizationCache() {
+    guard !table.canvasViewSize.isDegenerated else { return }
 
-  override var bounds: CGRect { didSet { updateCartoonCache() } }
-
-  private func updateCartoonCache() {
-    guard canvasView.frame.width != 0 && canvasView.frame.height != 0 else { return }
-
-    print("Cartoon hatches count: \(table.cartoon.hatches.count)")
-    print("Cartoon segments count: \(table.cartoon.segments.count)")
-
-    let startMoment = Date()
-
-    rasterizedShots = table.cartoon.shots.map {
-      build(
-        shot: $0,
-        frame: table.canvasFrame,
+    if !table.isCompatible(with: rasterizationCache) {
+      rasterizationCache = try? .init(
+        canvasSize: table.canvasFrame.size,
         cgSize: table.canvasViewSize
       )
     }
 
-    let rasterizationFinish = Date()
-
-    let animationInitializationFinish = Date()
-
-    print("Rasterization taken: \(rasterizationFinish.timeIntervalSince(startMoment))")
-    print("Animation initialization taken: \(animationInitializationFinish.timeIntervalSince(rasterizationFinish))")
-    print("!")
+    if let lastShot = table.cartoon.lastShot {
+      rasterizationCache?.add(shot: lastShot)
+    }
   }
 
-  private func build(shot: Shot,
-                     frame: Rect,
-                     cgSize: CGSize) -> UIImage {
-    guard cgSize.width > 0 && cgSize.height > 0
-    else { return UIImage() }
-
-    let scale = UIScreen.main.scale
-
-    UIGraphicsBeginImageContextWithOptions(cgSize, false, scale)
-
-    UIGraphicsGetCurrentContext().map { cgContext in
-      let builder = ShotImageBuilder(
-        shot: shot,
-        context: cgContext,
-        frame: frame,
-        cgFrame: .init(origin: .zero, size: cgSize)
-      )
-
-      builder.buildImage()
+  private var rasterizedVersionOfLastShot: UIImage? {
+    table.cartoon.lastShot.flatMap {
+      rasterizationCache?.rasterizedVersion(of: $0)
     }
-
-    let image = UIGraphicsGetImageFromCurrentImageContext()
-
-    UIGraphicsEndImageContext()
-
-    return UIImage(cgImage: image!.cgImage!, scale: scale, orientation: .up)
   }
 }
 

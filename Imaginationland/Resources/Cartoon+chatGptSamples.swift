@@ -650,8 +650,8 @@ extension Cartoon {
     shots: (0..<300).map { index in
       // Sun Disk: Rising from y = 1800 to y = 1200, shifted right (x = 600)
       let sunCenterX = 600
-      let sunY = 1800 - index * 6
-      let horizonY = 1600  // Horizon line
+      let sunY = 1500 - index * 6
+      let horizonY = 1300  // Horizon line
 
       // Outer Sun Disk as a 12-sided polygon
       let sunOuterRadius = 50
@@ -702,7 +702,7 @@ extension Cartoon {
         return nil
       }
 
-      let seaY = 1650
+      let seaY = 1350
 
       // Sea Waves: Filling up to the bottom of the screen with wavy lines
       let waveSegments: [Hatch.Segment] = (0..<30).flatMap { j in
@@ -729,7 +729,7 @@ extension Cartoon {
       let cloudOffset2 = index * 10
 
       let cloudSegments1: [Hatch.Segment] = (0..<5).map { j in
-        let baseY = 1400 + j * 20
+        let baseY = 1100 + j * 20
         return Hatch.Segment.line(Hatch.Line(
           start: Point(x: 0 + Int.random(in: 0...25) + cloudOffset1, y: baseY),
           end: Point(x: 200 + Int.random(in: 0...25) + cloudOffset1, y: baseY)
@@ -737,7 +737,7 @@ extension Cartoon {
       }
 
       let cloudSegments2: [Hatch.Segment] = (0..<3).map { j in
-        let baseY = 1300 + j * 10
+        let baseY = 1000 + j * 10
         return Hatch.Segment.line(Hatch.Line(
           start: Point(x: 300 + Int.random(in: 0...40) + cloudOffset2, y: baseY),
           end: Point(x: 600 + Int.random(in: 0...40) + cloudOffset2, y: baseY)

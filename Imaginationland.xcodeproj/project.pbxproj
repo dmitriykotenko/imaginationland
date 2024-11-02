@@ -67,6 +67,7 @@
 		5BE5B8582CD4455D00304C16 /* UserActionsListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B8572CD4455D00304C16 /* UserActionsListener.swift */; };
 		5BE5B85A2CD4D86F00304C16 /* BrushChooserView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B8592CD4D86F00304C16 /* BrushChooserView.swift */; };
 		5BE5B85C2CD541E800304C16 /* PearlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B85B2CD541E800304C16 /* PearlView.swift */; };
+		5BE5B85E2CD6522E00304C16 /* CGSize+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BE5B85D2CD6522E00304C16 /* CGSize+.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -150,6 +151,7 @@
 		5BE5B8572CD4455D00304C16 /* UserActionsListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserActionsListener.swift; sourceTree = "<group>"; };
 		5BE5B8592CD4D86F00304C16 /* BrushChooserView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BrushChooserView.swift; sourceTree = "<group>"; };
 		5BE5B85B2CD541E800304C16 /* PearlView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PearlView.swift; sourceTree = "<group>"; };
+		5BE5B85D2CD6522E00304C16 /* CGSize+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGSize+.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -206,6 +208,7 @@
 				5B616D542CD17A050057B1FF /* Views */,
 				5B616D2F2CD16CBD0057B1FF /* CACornerMask+.swift */,
 				5B616D602CD181150057B1FF /* CGPoint+.swift */,
+				5BE5B85D2CD6522E00304C16 /* CGSize+.swift */,
 				5B616D2B2CD16CBD0057B1FF /* CGRect+.swift */,
 				5B616D5E2CD17FFB0057B1FF /* Rect+.swift */,
 				5B616D2E2CD16CBD0057B1FF /* UIColor+.swift */,
@@ -441,6 +444,7 @@
 			files = (
 				5B616D3C2CD16CBD0057B1FF /* Buttons.swift in Sources */,
 				5B616D4B2CD177D50057B1FF /* Hatch+Segment.swift in Sources */,
+				5BE5B85E2CD6522E00304C16 /* CGSize+.swift in Sources */,
 				5B616D232CD16CA30057B1FF /* ImaginationlandError.swift in Sources */,
 				5B616D6B2CD36C9F0057B1FF /* Cartoon+sample.swift in Sources */,
 				5B616D3B2CD16CBD0057B1FF /* Colors.swift in Sources */,
