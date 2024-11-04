@@ -7,15 +7,15 @@ import UIKit
 extension UIColor {
 
   static var mainBackground: UIColor {
-    .black
+    UIColor {
+      $0.userInterfaceStyle == .dark ? .black : .white
+    }
   }
 
   static var mainTextColor: UIColor {
-    .white
-  }
-
-  static var melodyVisualisationStroke: UIColor {
-    .systemGreen
+    UIColor {
+      $0.userInterfaceStyle == .dark ? .white : .black
+    }
   }
 
   static var mainTintColor: UIColor {
@@ -28,7 +28,28 @@ extension UIColor {
   }
 
   static var buttonTintColor: UIColor {
-    Color.basicPink.asUiColor
+    UIColor {
+      $0.userInterfaceStyle == .dark ? .white : .black
+    }
+  }
+
+  static var greenishTintColor: UIColor {
+    UIColor {
+      $0.userInterfaceStyle == .dark ? 
+        .init(
+          red: 180.0 / 255.0,
+          green: 236.0 / 255.0,
+          blue: 81.0 / 255.0,
+          alpha: 1
+        ) :
+        .init(
+          red: 137.0 / 255.0,
+          green: 217.0 / 255.0,
+          blue: 0.0 / 255.0,
+          alpha: 1
+        )
+    }
+
   }
 
   static var yellowishTintColor: UIColor {

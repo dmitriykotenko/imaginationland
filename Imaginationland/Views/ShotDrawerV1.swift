@@ -16,14 +16,6 @@ struct ShotDrawerV1 {
     .init(canvasFrame: frame, cgFrame: cgFrame)
   }
 
-  let style = (
-    strokeColor: UIColor.melodyVisualisationStroke,
-    strokeWidth: CGFloat(2),
-    shadowColor: UIColor.melodyVisualisationStroke,
-    finalCircleRadius: CGFloat(4),
-    finalCircleShadowRadius: CGFloat(12)
-  )
-
   func drawIntoImage() -> UIImage {
     UIGraphicsImageRenderer(size: cgFrame.size).image { context in
       var nestedDrawer = self

@@ -8,6 +8,8 @@ class BrushChooserView: View {
 
   let cartoonist: Cartoonist
 
+  private var table: Cartoonist.Table
+
   private lazy var buttons = (
     white: button(color: .white),
     red: button(color: .red),
@@ -34,6 +36,7 @@ class BrushChooserView: View {
 
   init(cartoonist: Cartoonist) {
     self.cartoonist = cartoonist
+    self.table = cartoonist.table
 
     super.init()
 
@@ -57,12 +60,19 @@ class BrushChooserView: View {
       button.layer.borderWidth = 3
 
       button.layer.borderColor = (currentColor == color) ?
-        UIColor.buttonTintColor.cgColor :
+        UIColor.greenishTintColor.cgColor :
         UIColor.clear.cgColor
     }
+
+    table = newTable
   }
 
   private func setupButtons() {
+    buttons.white.layer.maskedCorners = [.topLeft, .bottomLeft]
+    buttons.red.layer.maskedCorners = []
+    buttons.black.layer.maskedCorners = []
+    buttons.blue.layer.maskedCorners = [.topRight, .bottomRight]
+
     let buttonsPanel = UIView.horizontalStack(
       distribution: .fillEqually,
       spacing: 3,
@@ -101,7 +111,10 @@ class BrushChooserView: View {
       .first { button, color in button == tappedButton }?.value
       ?? .black
 
-    cartoonist ! .enableFilling(.color(color))
+    cartoonist ! .updateFilling(
+      old: table.filling,
+      new: .color(color)
+    )
   }
 }
 

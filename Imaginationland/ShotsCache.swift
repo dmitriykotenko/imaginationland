@@ -12,7 +12,9 @@ class ShotsCache: Buildable {
 
   var savedShots: [UUID: Shot] = [:]
 
-  private lazy var frozenContext: CGContext = {
+  var contextfulShotId: UUID?
+
+  private lazy var fixedContext: CGContext = {
     let scale = UIScreen.main.scale
 
     var size = cgSize
@@ -92,14 +94,20 @@ class ShotsCache: Buildable {
     else { return UIImage() }
 
     if let savedShot, !shot.isMoreRecentVersion(of: savedShot) {
-      frozenContext.clear(
+      fixedContext.clear(
+        .init(origin: .zero, size: cgSize)
+      )
+    }
+
+    if contextfulShotId != shot.id {
+      fixedContext.clear(
         .init(origin: .zero, size: cgSize)
       )
     }
 
     let builder = ShotImageBuilder(
       shot: shot,
-      context: frozenContext,
+      context: fixedContext,
       frame: .init(origin: .zero, size: canvasSize),
       cgFrame: .init(origin: .zero, size: cgSize),
       numberOfRasterizedHatches: savedShot?.hatches.count ?? 0,
@@ -109,9 +117,13 @@ class ShotsCache: Buildable {
 
     builder.buildImage()
 
-    let image = frozenContext.makeImage()
+    contextfulShotId = shot.id
 
-    return UIImage(cgImage: image!, scale: rasterizationScale, orientation: .up)
+    let cgImage = fixedContext.makeImage()
+
+    return 
+      cgImage.map { UIImage(cgImage: $0, scale: rasterizationScale, orientation: .up) }
+      ?? UIImage()
   }
 
   func rasterize2(shot: Shot,

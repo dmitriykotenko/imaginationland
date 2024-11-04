@@ -20,27 +20,17 @@ struct ShotImageBuilder {
     .init(canvasFrame: frame, cgFrame: cgFrame)
   }
 
-  let style = (
-    strokeColor: UIColor.melodyVisualisationStroke,
-    strokeWidth: CGFloat(2),
-    shadowColor: UIColor.melodyVisualisationStroke,
-    finalCircleRadius: CGFloat(4),
-    finalCircleShadowRadius: CGFloat(12)
-  )
-
   func buildImage() {
 //    print("Build shot...")
 
-    if rasterizedPartOfShot == nil {
+    if let cgImage = rasterizedPartOfShot?.cgImage {
+      context.draw(cgImage, in: cgFrame, byTiling: false)
+    } else {
       context.clear(cgFrame)
     }
 
     context.setLineCap(.round)
     context.setLineJoin(.round)
-
-//    rasterizedPartOfShot?.cgImage.map {
-//      context.draw($0, in: cgFrame, byTiling: false)
-//    }
 
 //    print("[RRR] (Rasterized, non-rasterized): ")
 //    print("[RRR] (\(numberOfRasterizedHatches), \(shot.hatches.count - numberOfRasterizedHatches))")

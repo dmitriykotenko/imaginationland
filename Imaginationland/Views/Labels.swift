@@ -7,11 +7,15 @@ import UIKit
 extension UILabel {
 
   static var standard: UILabel {
-    label(font: .systemFont(ofSize: 18, weight: .medium, width: .condensed))
+    label(font: .systemFont(ofSize: 16, weight: .medium, width: .condensed))
   }
 
   static var large: UILabel {
     label(font: .systemFont(ofSize: 24, weight: .medium, width: .condensed))
+  }
+
+  static var giant: UILabel {
+    label(font: .systemFont(ofSize: 36, weight: .medium, width: .condensed))
   }
 
   static var largeWithMonospacedDigits: UILabel {

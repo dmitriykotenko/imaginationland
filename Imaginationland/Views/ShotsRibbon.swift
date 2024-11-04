@@ -8,16 +8,28 @@ class ShotsRibbon: View {
 
   let cartoonist: Cartoonist
 
+  var oldShotsCount: Int = 0
   var table: Cartoonist.Table
 
   var shots: [Shot] { table.cartoon.shots }
 
+  var currentShotIndex: Int = 0
+
   var rasterizationCache: ShotsCache?
+
+  var visibleIndices: Set<Int> = []
 
   private let collectionView = CollectionView(
     isPagingEnabled: false,
     cellSubviewType: UIImageView.self
   )
+
+  private let buttons = (
+    rewind: UIButton.iconic(image: .rewindIcon),
+    fastForward: UIButton.iconic(image: .fastForwardIcon)
+  )
+
+  private let unselectedShotScale: CGFloat = 0.7
 
   required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
@@ -32,18 +44,44 @@ class ShotsRibbon: View {
   }
 
   private func addSubviews() {
-    backgroundColor = .systemOrange
+//    backgroundColor = .systemOrange
 
     snp.makeConstraints {
       $0.height.equalTo(60 + 8)
     }
 
-    collectionView.backgroundColor = .orange
-    addSubview(collectionView)
-    collectionView.snp.makeConstraints { $0.edges.equalToSuperview().inset(4) }
-
     collectionView.dataSource = self
     collectionView.delegate = self
+
+    addSubview(buttons.rewind)
+    buttons.rewind.snp.makeConstraints {
+      $0.top.leading.bottom.equalToSuperview()
+    }
+
+    addSubview(buttons.fastForward)
+    buttons.fastForward.snp.makeConstraints {
+      $0.top.trailing.bottom.equalToSuperview()
+    }
+
+    buttons.rewind.addTarget(
+      self,
+      action: #selector(rewind),
+      for: .touchUpInside
+    )
+
+    buttons.fastForward.addTarget(
+      self,
+      action: #selector(fastForward),
+      for: .touchUpInside
+    )
+
+    collectionView.backgroundColor = .clear
+    addSubview(collectionView)
+    collectionView.snp.makeConstraints {
+      $0.top.bottom.equalToSuperview().inset(4)
+      $0.leading.equalTo(buttons.rewind.snp.trailing).inset(4)
+      $0.trailing.equalTo(buttons.fastForward.snp.leading).inset(4)
+    }
   }
 
   private func bindToCartoonist() {
@@ -54,18 +92,29 @@ class ShotsRibbon: View {
 //    print("Shots ribbon needs to update.")
 
     table = newTable
+    currentShotIndex = newTable.currentShotIndex
 
     updateRasterizationCache()
 
     isUserInteractionEnabled = !table.isPlaying
+    collectionView.alpha = table.isPlaying ? 0.5 : 1
 
+    buttons.rewind.isEnabled = !table.isPlaying
+    buttons.fastForward.isEnabled = !table.isPlaying
+
+    // TODO: reload only updated shots
     collectionView.reloadData()
 
-    collectionView.selectItem(
-      at: .init(row: table.currentShotIndex, section: 0),
-      animated: true,
-      scrollPosition: .centeredHorizontally
-    )
+    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+      // TODO: do not scroll if selected shot is the same.
+      self.collectionView.scrollToItem(
+        at: .init(row: self.currentShotIndex, section: 0),
+        at: .centeredHorizontally,
+        animated: self.oldShotsCount != 0
+      )
+
+      self.oldShotsCount = self.table.cartoon.shots.count
+    }
   }
 
   private func updateRasterizationCache() {
@@ -82,6 +131,26 @@ class ShotsRibbon: View {
       rasterizationCache?.add(shot: lastShot)
     }
   }
+
+  @objc private func rewind() {
+    cartoonist ! .go(
+      fromShotId: table.currentShotId, 
+      toShotId: 
+        (visibleIndices.min() ?? 0) <= currentShotIndex - 1 ?
+          table.cartoon.shots[0].id :
+          table.currentShotId
+    )
+  }
+
+  @objc private func fastForward() {
+    cartoonist ! .go(
+      fromShotId: table.currentShotId,
+      toShotId:
+        (visibleIndices.max() ?? (table.cartoon.shots.count - 1)) >= currentShotIndex + 1 ?
+          table.cartoon.shots.last!.id :
+          table.currentShotId
+    )
+  }
 }
 
 
@@ -95,9 +164,14 @@ extension ShotsRibbon: UICollectionViewDataSource, UICollectionViewDelegateFlowL
   func collectionView(_ collectionView: UICollectionView,
                       layout collectionViewLayout: UICollectionViewLayout,
                       sizeForItemAt indexPath: IndexPath) -> CGSize {
-    .init(
-      height: 66,
-      widthPerHeight: table.canvasViewSize.widthPerHeight
+    let height: CGFloat = 66
+    var width: CGFloat = 66 * table.canvasViewSize.widthPerHeight
+
+    if indexPath.row != currentShotIndex { width *= unselectedShotScale }
+
+    return .init(
+      width: width,
+      height: height
     )
   }
 
@@ -113,13 +187,35 @@ extension ShotsRibbon: UICollectionViewDataSource, UICollectionViewDelegateFlowL
     cell.subview.image =
       rasterizationCache?.rasterizedVersion(of: shots[indexPath.row]).flippedVertically
 
+    cell.contentView.subviews.forEach {
+      $0.transform = 
+      if indexPath.row == currentShotIndex {
+        .identity
+      } else {
+        .init(scaleX: unselectedShotScale, y: unselectedShotScale)
+      }
+    }
+
     return cell
   }
 
   func collectionView(_ collectionView: UICollectionView,
                       didSelectItemAt indexPath: IndexPath) {
-    cartoonist ! .startEditingOfShot(
-      id: shots[indexPath.row].id
+    cartoonist ! .go(
+      fromShotId: table.currentShotId, 
+      toShotId: shots[indexPath.row].id
     )
+  }
+
+  func collectionView(_ collectionView: UICollectionView, 
+                      willDisplay cell: UICollectionViewCell,
+                      forItemAt indexPath: IndexPath) {
+    visibleIndices.insert(indexPath.row)
+  }
+
+  func collectionView(_ collectionView: UICollectionView, 
+                      didEndDisplaying cell: UICollectionViewCell,
+                      forItemAt indexPath: IndexPath) {
+    visibleIndices.remove(indexPath.row)
   }
 }

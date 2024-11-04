@@ -80,7 +80,7 @@ class AnimationGeneratorView: View, UITextFieldDelegate {
       for: .touchUpInside
     )
 
-    textFieldText = "100"
+    textFieldText = "50"
     textField.keyboardType = .numberPad
     textField.autocorrectionType = .no
     textField.text = textFieldText
@@ -195,7 +195,7 @@ class AnimationGeneratorView: View, UITextFieldDelegate {
 
   @objc private func generate() {
     if let shotsCount {
-      cartoonist ! .appendRandomAnimation(shotsCount: shotsCount)
+      cartoonist ! .generateRandomAnimation(shotsCount: shotsCount)
     }
   }
 

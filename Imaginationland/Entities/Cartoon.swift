@@ -6,7 +6,7 @@ import Foundation
 struct Cartoon: Equatable, Hashable, Codable, Buildable {
 
   var shots: [Shot] = []
-  var shotsPerSecond: Int = 24
+  var shotsPerSecond: Int = 10
 
   var lastShot: Shot? {
     get { shots.last }

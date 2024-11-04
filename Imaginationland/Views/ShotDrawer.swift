@@ -70,6 +70,8 @@ struct ShotDrawer {
 extension UIImage {
 
   var flippedVertically: UIImage {
-    UIImage(cgImage: cgImage!, scale: scale, orientation: .downMirrored)
+    cgImage
+      .map { UIImage(cgImage: $0, scale: scale, orientation: .downMirrored) }
+      ?? self
   }
 }

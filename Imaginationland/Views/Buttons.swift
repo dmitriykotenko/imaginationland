@@ -9,6 +9,7 @@ extension UIButton {
   static var standard: UIButton {
     button(
       font: .systemFont(ofSize: 24, weight: .medium, width: .condensed),
+      backgroundColor: .greenishTintColor,
       cornerRadius: 10
     )
   }
@@ -16,7 +17,7 @@ extension UIButton {
   static func iconic(image: UIImage?,
                      tintColors: [UIControl.State: UIColor] = [
                       .normal: .buttonTintColor,
-                      .selected: .buttonTintColor.withBrightnessMultiplied(by: 0.9)
+                      .selected: .greenishTintColor
                      ],
                      width: CGFloat = 60,
                      height: CGFloat = 44) -> UIButton {
@@ -41,7 +42,11 @@ extension UIButton {
 
     iconicButton.snp.makeConstraints { $0.width.equalTo(width) }
 
-    return iconicButton.with(images: images)
+    _ = iconicButton.with(images: images)
+
+    iconicButton.isEnabled = true
+
+    return iconicButton
   }
 
   static func small(height: CGFloat = 44) -> UIButton {

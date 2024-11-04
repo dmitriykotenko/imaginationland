@@ -29,15 +29,4 @@ class CollectionViewCell<Subview: UIView>: UICollectionViewCell {
     contentView.addSubview(subview)
     subview.snp.makeConstraints { $0.edges.equalToSuperview() }
   }
-
-  override var isSelected: Bool {
-    didSet {
-      print("CollectionViewCell.isSelected == \(isSelected)")
-      contentView.subviews.forEach {
-        $0.transform = isSelected ?
-          .init(scaleX: 1, y: 1) :
-          .init(scaleX: 0.9, y: 0.9)
-      }
-    }
-  }
 }

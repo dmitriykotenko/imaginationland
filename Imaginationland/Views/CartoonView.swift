@@ -14,10 +14,6 @@ class CartoonView: View {
 
   var rasterizationCache: ShotsCache?
 
-  private let titleLabel = UILabel.large
-    .with(textColor: .buttonTintColor)
-    .with(text: "Где Пирожок?")
-
   private let playbackView = UIImageView.imageView(
     image: .canvasBackground, 
     size: nil
@@ -38,19 +34,46 @@ class CartoonView: View {
 
   private lazy var brushChooserView = BrushChooserView(cartoonist: cartoonist)
 
-  private lazy var buttonsPanel = UIView.horizontalStack(
+  private lazy var topButtonsPanel: UIView = {
+    let panel = View()
+
+    let left = UIView.horizontalStack(
+      distribution: .fillEqually,
+      subviews: [buttons.undo, buttons.redo]
+    )
+
+    let right = UIView.horizontalStack(
+      distribution: .fillEqually,
+      subviews: [buttons.generateRandomAnimation, buttons.help]
+    )
+
+    panel.addSubview(left)
+    left.snp.makeConstraints {
+      $0.top.bottom.leading.equalToSuperview()
+    }
+
+    panel.addSubview(right)
+    right.snp.makeConstraints {
+      $0.top.bottom.trailing.equalToSuperview()
+    }
+
+    panel.addSubview(buttons.play)
+    buttons.play.snp.makeConstraints {
+      $0.top.bottom.centerX.equalToSuperview()
+    }
+
+    return panel
+  }()
+
+  private lazy var bottomButtonsPanel = UIView.horizontalStack(
     distribution: .fillEqually,
     subviews: [
       buttons.brush,
       buttons.eraser,
-      buttons.undo,
-      buttons.redo,
       buttons.appendShot,
       buttons.duplicateShot,
       buttons.deleteShot,
       buttons.deleteEverything,
-      buttons.appendRandomAnimation,
-      buttons.play
     ]
   )
 
@@ -59,18 +82,21 @@ class CartoonView: View {
     redo: UIButton.iconic(image: .redoIcon),
     brush: UIButton.iconic(image: .brushIcon),
     eraser: UIButton.iconic(image: .eraserIcon),
-    appendShot: UIButton.iconic(image: .pictureIcon),
-    duplicateShot: UIButton.iconic(image: .twoFingersIcon),
+    appendShot: UIButton.iconic(image: .plusIcon),
+    duplicateShot: UIButton.iconic(image: .pictureIcon),
     deleteShot: UIButton.iconic(image: .trashcanIcon),
-    deleteEverything: UIButton.iconic(image: .nuclearExplosionIcon),
-    appendRandomAnimation: UIButton.iconic(image: .magicWand1icon),
+    deleteEverything: UIButton.iconic(image: .trashcansIcon),
+    generateRandomAnimation: UIButton.iconic(image: .magicWand1icon),
     play: UIButton.iconic(
       images: [.normal: .playIcon, .selected: .stopIcon],
       tintColors: [.normal: .buttonTintColor]
-    )
+    ),
+    help: UIButton.iconic(image: .commandIcon)
   )
 
   private lazy var shotsRibbon = ShotsRibbon(cartoonist: cartoonist)
+
+  private lazy var helpView = HelpView(cartoonist: cartoonist)
 
   required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
@@ -85,10 +111,10 @@ class CartoonView: View {
   }
 
   private func addSubviews() {
-    addTitleLabel()
+    addTopButtons()
     addCanvas()
     addPlaybackView()
-    addButtons()
+    addBottomButtons()
     addShotsRibbon()
 
     animationGeneratorView.isHidden = true
@@ -96,22 +122,25 @@ class CartoonView: View {
     animationGeneratorView.snp.makeConstraints {
       $0.edges.equalToSuperview()
     }
+
+    addSubview(helpView)
+    helpView.snp.makeConstraints {
+      $0.edges.equalToSuperview()
+    }
   }
 
-  private func addTitleLabel() {
-    addSubview(titleLabel)
+  private func addTopButtons() {
+    addSubview(topButtonsPanel)
 
-    titleLabel.snp.makeConstraints {
-      $0.top.equalToSuperview().offset(70)
-      $0.centerX.equalToSuperview()
-      $0.left.greaterThanOrEqualToSuperview().offset(16)
+    topButtonsPanel.snp.makeConstraints {
+      $0.top.leading.trailing.equalTo(safeAreaLayoutGuide)
     }
   }
 
   private func addCanvas() {
     addSubview(canvasView)
     canvasView.snp.makeConstraints {
-      $0.top.equalTo(titleLabel.snp.bottom).offset(Paddings.medium)
+      $0.top.equalTo(topButtonsPanel.snp.bottom).offset(Paddings.medium)
       $0.leading.trailing.equalToSuperview()
     }
 
@@ -131,7 +160,7 @@ class CartoonView: View {
     }
 
     let pearlBackground = PearlView()
-    insertSubview(pearlBackground, belowSubview: titleLabel)
+    insertSubview(pearlBackground, belowSubview: topButtonsPanel)
     pearlBackground.snp.makeConstraints {
       $0.top.leading.trailing.equalToSuperview()
       $0.bottom.equalTo(canvasView.snp.top)
@@ -148,15 +177,15 @@ class CartoonView: View {
     playbackView.animationRepeatCount = .max
   }
 
-  private func addButtons() {
+  private func addBottomButtons() {
     addSubview(brushChooserView)
     brushChooserView.snp.makeConstraints {
       $0.top.equalTo(canvasView.snp.bottom)
       $0.leading.trailing.equalTo(safeAreaLayoutGuide)
     }
 
-    addSubview(buttonsPanel)
-    buttonsPanel.snp.makeConstraints {
+    addSubview(bottomButtonsPanel)
+    bottomButtonsPanel.snp.makeConstraints {
       $0.top.equalTo(brushChooserView.snp.bottom)
       $0.leading.trailing.equalTo(safeAreaLayoutGuide)
 //      $0.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
@@ -171,11 +200,13 @@ class CartoonView: View {
 
     bind(button: buttons.undo, toAction: #selector(undoHatch))
     bind(button: buttons.redo, toAction: #selector(redoHatch))
+    bind(button: buttons.help, toAction: #selector(help))
+
     bind(button: buttons.brush, toAction: #selector(enableBrush))
     bind(button: buttons.eraser, toAction: #selector(enableEraser))
     bind(button: buttons.appendShot, toAction: #selector(appendShot))
     bind(button: buttons.duplicateShot, toAction: #selector(duplicateShot))
-    bind(button: buttons.appendRandomAnimation, toAction: #selector(appendRandomAnimation))
+    bind(button: buttons.generateRandomAnimation, toAction: #selector(generateRandomAnimation))
     bind(button: buttons.deleteShot, toAction: #selector(deleteShot))
     bind(button: buttons.deleteEverything, toAction: #selector(deleteEverything))
     bind(button: buttons.play, toAction: #selector(play))
@@ -193,49 +224,78 @@ class CartoonView: View {
   private func addShotsRibbon() {
     addSubview(shotsRibbon)
     shotsRibbon.snp.makeConstraints {
-      $0.top.equalTo(buttonsPanel.snp.bottom)
+      $0.top.equalTo(bottomButtonsPanel.snp.bottom)
       $0.bottom.leading.trailing.equalTo(safeAreaLayoutGuide)
     }
   }
 
   @objc private func undoHatch() {
-    cartoonist ! .undoHatch
+    cartoonist ! .undo
+//    cartoonist ! .undoHatch
   }
 
   @objc private func redoHatch() {
-    cartoonist ! .redoHatch
+    cartoonist ! .redo
+//    cartoonist ! .redoHatch
   }
 
   @objc private func enableBrush() {
-    cartoonist ! .enableFilling(.color(cartoonist.table.choosedColor))
+    cartoonist ! .updateFilling(
+      old: table.filling,
+      new: .color(table.choosedColor)
+    )
   }
 
   @objc private func enableEraser() {
-    cartoonist ! .enableFilling(.eraser)
+    cartoonist ! .updateFilling(
+      old: table.filling,
+      new: .eraser
+    )
   }
 
   @objc private func appendShot() {
-    cartoonist ! .appendShot
+    cartoonist ! .insertShot(
+      .empty, 
+      atIndex: table.currentShotIndex + 1
+    )
   }
 
   @objc private func duplicateShot() {
-    cartoonist ! .duplicateShot(id: table.currentShotId)
+    cartoonist ! .insertShot(
+      table.currentShot.duplicated,
+      atIndex: table.currentShotIndex + 1
+    )
   }
 
   @objc private func deleteShot() {
-    cartoonist ! .deleteShot(id: table.currentShot.id)
+    switch table.cartoon.shots.count {
+    case 1:
+      cartoonist ! .clearTheOnlyShot(shot: table.currentShot)
+    default:
+      cartoonist ! .deleteShot(
+        shot: table.currentShot,
+        atIndex: table.currentShotIndex
+      )
+    }
   }
 
   @objc private func deleteEverything() {
-    cartoonist ! .deleteEverything
+    cartoonist ! .deleteShots(
+      shots: table.cartoon.shots,
+      currentShotId: table.currentShotId
+    )
   }
 
-  @objc private func appendRandomAnimation() {
+  @objc private func generateRandomAnimation() {
     cartoonist ! .showAnimationGeneratorView
   }
 
   @objc private func play() {
     cartoonist ! (table.isPlaying ? .stopPlaying : .play)
+  }
+
+  @objc private func help() {
+    cartoonist ! .showHelp
   }
 
   private func bindToCartoonist() {
@@ -304,7 +364,7 @@ class CartoonView: View {
 
     buttons.appendShot.isEnabled = table.canAppendShot
     buttons.duplicateShot.isEnabled = table.canDuplicateShot
-    buttons.appendRandomAnimation.isEnabled = table.canAppendRandomAnimation
+    buttons.generateRandomAnimation.isEnabled = table.canGenerateRandomAnimation
 
     buttons.deleteShot.isEnabled = table.canDeleteCurrentShot
     buttons.deleteEverything.isEnabled = table.canDeleteEverything
