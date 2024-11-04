@@ -10,6 +10,34 @@ class ShotsCache: Buildable {
   var cgSize: CGSize
   var rasterizationScale: CGFloat = UIScreen.main.scale
 
+  var savedShots: [UUID: Shot] = [:]
+
+  private lazy var frozenContext: CGContext = {
+    let scale = UIScreen.main.scale
+
+    var size = cgSize
+    size.width *= scale
+    size.height *= scale
+
+    let colorSpace = CGColorSpaceCreateDeviceRGB()
+
+    let context: CGContext = CGContext(
+      data: nil,
+      width: Int(size.width),
+      height: Int(size.height),
+      bitsPerComponent: 8,
+      bytesPerRow: 0,
+      space: colorSpace,
+      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+    )!
+
+    context.setLineCap(.round)
+    let transform = CGAffineTransform(scaleX: scale, y: scale)
+    context.concatenate(transform)
+
+    return context
+  }()
+
   init(canvasSize: Size, 
        cgSize: CGSize,
        rasterizedShots: [Shot.VersionId: UIImage] = [:]) throws {
@@ -39,11 +67,14 @@ class ShotsCache: Buildable {
     case let uiImage?:
       return uiImage
     case nil:
-      removeLastRasterization(of: shot)
+      let savedShot = savedShots[shot.id]
 
-      let uiImage = rasterize(shot: shot)
+      let uiImage = rasterize(shot: shot, butNot: savedShot)
       shotVersionIds[shot.id] = shot.versionId
       rasterizedShots[shot.versionId] = uiImage
+
+      savedShots[shot.id] = shot
+
       return uiImage
     }
   }
@@ -55,7 +86,36 @@ class ShotsCache: Buildable {
     }
   }
 
-  func rasterize(shot: Shot) -> UIImage {
+  func rasterize(shot: Shot,
+                 butNot savedShot: Shot?) -> UIImage {
+    guard cgSize.width > 0 && cgSize.height > 0
+    else { return UIImage() }
+
+    if let savedShot, !shot.isMoreRecentVersion(of: savedShot) {
+      frozenContext.clear(
+        .init(origin: .zero, size: cgSize)
+      )
+    }
+
+    let builder = ShotImageBuilder(
+      shot: shot,
+      context: frozenContext,
+      frame: .init(origin: .zero, size: canvasSize),
+      cgFrame: .init(origin: .zero, size: cgSize),
+      numberOfRasterizedHatches: savedShot?.hatches.count ?? 0,
+      rasterizedPartOfShot: (savedShot?.versionId).flatMap { rasterizedShots[$0] },
+      newHatches: shot.newHatches(inComparisonWith: savedShot ?? shot.with(\.hatches, []))
+    )
+
+    builder.buildImage()
+
+    let image = frozenContext.makeImage()
+
+    return UIImage(cgImage: image!, scale: rasterizationScale, orientation: .up)
+  }
+
+  func rasterize2(shot: Shot,
+                  butNot savedShot: Shot?) -> UIImage {
     guard cgSize.width > 0 && cgSize.height > 0
     else { return UIImage() }
 
@@ -66,7 +126,10 @@ class ShotsCache: Buildable {
         shot: shot,
         context: cgContext,
         frame: .init(origin: .zero, size: canvasSize),
-        cgFrame: .init(origin: .zero, size: cgSize)
+        cgFrame: .init(origin: .zero, size: cgSize),
+        numberOfRasterizedHatches: savedShot?.hatches.count ?? 0,
+        rasterizedPartOfShot: (savedShot?.versionId).flatMap { rasterizedShots[$0] },
+        newHatches: []
       )
 
       builder.buildImage()

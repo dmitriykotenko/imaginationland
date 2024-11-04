@@ -9,4 +9,6 @@ struct Size: Equatable, Hashable, Codable, Buildable {
   var height: Int
 
   var isDegenerated: Bool { width == 0 || height == 0 }
+
+  static let zero = Size(width: 0, height: 0)
 }

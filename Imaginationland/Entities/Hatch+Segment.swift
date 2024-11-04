@@ -5,14 +5,8 @@ import Foundation
 
 extension Hatch {
 
-  enum Segment: Equatable, Hashable, Codable, Buildable {
+  struct Segment: Equatable, Hashable, Codable, Buildable {
 
-    case line(Line)
-    case spline(Spline)
-  }
-
-  struct Line: Equatable, Hashable, Codable, Buildable {
-  
     var start: Point
     var end: Point
   }

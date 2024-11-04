@@ -12,10 +12,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 10, y: 10)
-            ))
+           )
           ]
         )
       ]),
@@ -24,10 +24,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 20, y: 20)
-            ))
+           )
           ]
         )
       ]),
@@ -36,10 +36,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 30, y: 30)
-            ))
+           )
           ]
         )
       ]),
@@ -48,10 +48,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 40, y: 40)
-            ))
+           )
           ]
         )
       ]),
@@ -60,10 +60,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 50, y: 50)
-            ))
+           )
           ]
         )
       ]),
@@ -72,10 +72,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 60, y: 60)
-            ))
+           )
           ]
         )
       ]),
@@ -84,10 +84,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 70, y: 70)
-            ))
+           )
           ]
         )
       ]),
@@ -96,10 +96,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 80, y: 80)
-            ))
+           )
           ]
         )
       ]),
@@ -108,10 +108,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 90, y: 90)
-            ))
+           )
           ]
         )
       ]),
@@ -120,10 +120,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)),
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: 100, y: 100)
-            ))
+           )
           ]
         )
       ])
@@ -140,10 +140,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)), // Red color
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: endX, y: endY)
-            ))
+           )
           ]
         )
       ])
@@ -172,10 +172,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 0, blue: 0, alpha: 1.0)), // Red color
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 0),
               end: Point(x: endX1, y: endY1)
-            ))
+           )
           ]
         ),
 
@@ -184,10 +184,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 0, green: 255, blue: 0, alpha: 1.0)), // Green color
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: startX2, y: 50),
               end: Point(x: endX2, y: 50)
-            ))
+           )
           ]
         ),
 
@@ -196,12 +196,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 0, green: 0, blue: 255, alpha: 1.0)), // Blue color
           segments: [
-            .spline(Hatch.Spline(
+            .init(
               start: Point(x: startX3, y: 2000),
-              end: Point(x: endX3, y: 0),
-              startControlPoint: Point(x: startX3 + controlOffset, y: 1500),
-              endControlPoint: Point(x: endX3 - controlOffset, y: 500)
-            ))
+              end: Point(x: endX3, y: 0)
+            )
           ]
         )
       ])
@@ -227,10 +225,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 0, green: 0, blue: 255, alpha: 1.0)), // Blue sea
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 0, y: 1600),
               end: Point(x: 1000, y: 1600)
-            ))
+           )
           ]
         ),
 
@@ -239,10 +237,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 204, blue: 0, alpha: 1.0)), // Yellow sun
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 500 - 50, y: sunY),
               end: Point(x: 500 + 50, y: sunY)
-            ))
+           )
           ]
         ),
 
@@ -251,22 +249,22 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 204, blue: 0, alpha: 0.5)), // Lighter yellow rays
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 500, y: sunY),
               end: Point(x: 500, y: sunY - rayLength)
-            )),
-            .line(Hatch.Line(
+           ),
+            Hatch.Segment(
               start: Point(x: 500, y: sunY),
               end: Point(x: 500 + rayLength, y: sunY)
-            )),
-            .line(Hatch.Line(
+           ),
+            Hatch.Segment(
               start: Point(x: 500, y: sunY),
               end: Point(x: 500 - rayLength, y: sunY)
-            )),
-            .line(Hatch.Line(
+           ),
+            Hatch.Segment(
               start: Point(x: 500, y: sunY),
               end: Point(x: 500, y: sunY + rayLength)
-            ))
+           )
           ]
         ),
 
@@ -275,10 +273,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 255, blue: 255, alpha: 0.8)), // White cloud
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 200 + cloudOffset1, y: 1400),
               end: Point(x: 400 + cloudOffset1, y: 1400)
-            ))
+           )
           ]
         ),
 
@@ -287,10 +285,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 255, blue: 255, alpha: 0.8)), // Another white cloud
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 600 + cloudOffset2, y: 1300),
               end: Point(x: 800 + cloudOffset2, y: 1300)
-            ))
+           )
           ]
         )
       ])
@@ -313,10 +311,10 @@ extension Cartoon {
         let startY = sunY + Int(Double(sunRadius) * sin(angle1))
         let endX = sunCenterX + Int(Double(sunRadius) * cos(angle2))
         let endY = sunY + Int(Double(sunRadius) * sin(angle2))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: startX, y: startY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Sun Rays: 7 rays distributed around the sun
@@ -325,10 +323,10 @@ extension Cartoon {
         let angle = Double(i) * (2 * .pi / 7)
         let endX = sunCenterX + Int(Double(rayLength) * cos(angle))
         let endY = sunY + Int(Double(rayLength) * sin(angle))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: sunCenterX, y: sunY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Cloud Positions
@@ -341,14 +339,14 @@ extension Cartoon {
         let endX = startX + 50
         let yOffset = (i % 2 == 0 ? 0 : 10) // Alternating heights for wave peaks and troughs
         return [
-          Hatch.Segment.line(Hatch.Line(
+          Hatch.Segment(
             start: Point(x: startX, y: 1600 + yOffset),
             end: Point(x: endX, y: 1600 - yOffset)
-          )),
-          Hatch.Segment.line(Hatch.Line(
+         ),
+          Hatch.Segment(
             start: Point(x: endX, y: 1600 - yOffset),
             end: Point(x: endX + 50, y: 1600 + yOffset)
-          ))
+         )
         ]
       }
 
@@ -379,10 +377,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 255, blue: 255, alpha: 0.8)), // White cloud
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 200 + cloudOffset1, y: 1400),
               end: Point(x: 400 + cloudOffset1, y: 1400)
-            ))
+           )
           ]
         ),
 
@@ -391,10 +389,10 @@ extension Cartoon {
           brush: .main,
           filling: .color(Color(red: 255, green: 255, blue: 255, alpha: 0.8)), // Another white cloud
           segments: [
-            .line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 600 + cloudOffset2, y: 1300),
               end: Point(x: 800 + cloudOffset2, y: 1300)
-            ))
+           )
           ]
         )
       ])
@@ -420,10 +418,10 @@ extension Cartoon {
         let startY = sunY + Int(Double(sunRadius) * sin(angle1))
         let endX = sunCenterX + Int(Double(sunRadius) * cos(angle2))
         let endY = sunY + Int(Double(sunRadius) * sin(angle2))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: startX, y: startY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Sun Rays: Extending each ray to the edges of the screen
@@ -431,10 +429,10 @@ extension Cartoon {
         let angle = Double(i) * (2 * .pi / 7)
         let rayEndX = sunCenterX + Int(Double(max(screenWidth, screenHeight)) * cos(angle))
         let rayEndY = sunY + Int(Double(max(screenWidth, screenHeight)) * sin(angle))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: sunCenterX, y: sunY),
           end: Point(x: rayEndX, y: rayEndY)
-        ))
+       )
       }
 
       // Sea Waves: 5 horizontal wavy lines
@@ -445,14 +443,14 @@ extension Cartoon {
           let baseY = 1650 + j * 30
           let yOffset = (i % 2 == 0 ? 10 : -10) // Alternating heights for wave peaks and troughs
           return [
-            Hatch.Segment.line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: startX, y: baseY + yOffset),
               end: Point(x: endX, y: baseY - yOffset)
-            )),
-            Hatch.Segment.line(Hatch.Line(
+           ),
+            Hatch.Segment(
               start: Point(x: endX, y: baseY - yOffset),
               end: Point(x: endX + 50, y: baseY + yOffset)
-            ))
+           )
           ]
         }
       }
@@ -488,10 +486,10 @@ extension Cartoon {
           brush: Brush.main,
           filling: Filling.color(Color(red: 255, green: 255, blue: 255, alpha: 0.8)), // White cloud
           segments: [
-            Hatch.Segment.line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 200 + cloudOffset1, y: 1400),
               end: Point(x: 400 + cloudOffset1, y: 1400)
-            ))
+           )
           ]
         ),
 
@@ -500,10 +498,10 @@ extension Cartoon {
           brush: Brush.main,
           filling: Filling.color(Color(red: 255, green: 255, blue: 255, alpha: 0.8)), // Another white cloud
           segments: [
-            Hatch.Segment.line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: 600 + cloudOffset2, y: 1300),
               end: Point(x: 800 + cloudOffset2, y: 1300)
-            ))
+           )
           ]
         )
       ])
@@ -526,10 +524,10 @@ extension Cartoon {
         let startY = sunY + Int(Double(sunOuterRadius) * sin(angle1))
         let endX = sunCenterX + Int(Double(sunOuterRadius) * cos(angle2))
         let endY = sunY + Int(Double(sunOuterRadius) * sin(angle2))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: startX, y: startY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Inner Sun Disk as a 12-sided polygon for opacity effect
@@ -541,10 +539,10 @@ extension Cartoon {
         let startY = sunY + Int(Double(sunInnerRadius) * sin(angle1))
         let endX = sunCenterX + Int(Double(sunInnerRadius) * cos(angle2))
         let endY = sunY + Int(Double(sunInnerRadius) * sin(angle2))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: startX, y: startY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Rotating Sun Rays: Slightly rotating clockwise each frame
@@ -553,10 +551,10 @@ extension Cartoon {
         let angle = Double(i) * (2 * .pi / 7) + rotationAngle
         let rayEndX = sunCenterX + Int(Double(max(screenWidth, screenHeight)) * cos(angle))
         let rayEndY = sunY + Int(Double(max(screenWidth, screenHeight)) * sin(angle))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: sunCenterX, y: sunY),
           end: Point(x: rayEndX, y: rayEndY)
-        ))
+       )
       }
 
       // Sea Waves: Filling up to the bottom of the screen with wavy lines
@@ -567,14 +565,14 @@ extension Cartoon {
           let baseY = 1650 + j * 30
           let yOffset = (i % 2 == 0 ? 10 : -10) // Alternating heights for wave peaks and troughs
           return [
-            Hatch.Segment.line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: startX, y: baseY + yOffset),
               end: Point(x: endX, y: baseY - yOffset)
-            )),
-            Hatch.Segment.line(Hatch.Line(
+           ),
+            Hatch.Segment(
               start: Point(x: endX, y: baseY - yOffset),
               end: Point(x: endX + 50, y: baseY + yOffset)
-            ))
+           )
           ]
         }
       }
@@ -585,18 +583,18 @@ extension Cartoon {
 
       let cloudSegments1: [Hatch.Segment] = (0..<3).map { j in
         let baseY = 1400 + j * 10
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: 200 + cloudOffset1, y: baseY),
           end: Point(x: 400 + cloudOffset1, y: baseY)
-        ))
+       )
       }
 
       let cloudSegments2: [Hatch.Segment] = (0..<3).map { j in
         let baseY = 1300 + j * 10
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: 600 + cloudOffset2, y: baseY),
           end: Point(x: 800 + cloudOffset2, y: baseY)
-        ))
+       )
       }
 
       return Shot(hatches: [
@@ -662,10 +660,10 @@ extension Cartoon {
         let startY = sunY + Int(Double(sunOuterRadius) * sin(angle1))
         let endX = sunCenterX + Int(Double(sunOuterRadius) * cos(angle2))
         let endY = sunY + Int(Double(sunOuterRadius) * sin(angle2))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: startX, y: startY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Inner Sun Disk as a 12-sided polygon for opacity effect
@@ -677,10 +675,10 @@ extension Cartoon {
         let startY = sunY + Int(Double(sunInnerRadius) * sin(angle1))
         let endX = sunCenterX + Int(Double(sunInnerRadius) * cos(angle2))
         let endY = sunY + Int(Double(sunInnerRadius) * sin(angle2))
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: startX, y: startY),
           end: Point(x: endX, y: endY)
-        ))
+       )
       }
 
       // Rotating Sun Rays: Slightly rotating clockwise each frame
@@ -694,10 +692,10 @@ extension Cartoon {
         if sunY < horizonY || rayDirectionY <= 0 {
           let rayEndX = sunCenterX + Int(Double(max(screenWidth, screenHeight)) * cos(angle))
           let rayEndY = sunY + Int(Double(max(screenWidth, screenHeight)) * rayDirectionY)
-          return Hatch.Segment.line(Hatch.Line(
+          return Hatch.Segment(
             start: Point(x: sunCenterX, y: sunY),
             end: Point(x: rayEndX, y: rayEndY)
-          ))
+         )
         }
         return nil
       }
@@ -712,14 +710,14 @@ extension Cartoon {
           let baseY = seaY + j * 30
           let yOffset = (i % 2 == 0 ? 10 : -10) // Alternating heights for wave peaks and troughs
           return [
-            Hatch.Segment.line(Hatch.Line(
+            Hatch.Segment(
               start: Point(x: startX, y: baseY + yOffset),
               end: Point(x: endX, y: baseY - yOffset)
-            )),
-            Hatch.Segment.line(Hatch.Line(
+           ),
+            Hatch.Segment(
               start: Point(x: endX, y: baseY - yOffset),
               end: Point(x: endX + 50, y: baseY + yOffset)
-            ))
+           )
           ]
         }
       }
@@ -730,18 +728,18 @@ extension Cartoon {
 
       let cloudSegments1: [Hatch.Segment] = (0..<5).map { j in
         let baseY = 1100 + j * 20
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: 0 + Int.random(in: 0...25) + cloudOffset1, y: baseY),
           end: Point(x: 200 + Int.random(in: 0...25) + cloudOffset1, y: baseY)
-        ))
+       )
       }
 
       let cloudSegments2: [Hatch.Segment] = (0..<3).map { j in
         let baseY = 1000 + j * 10
-        return Hatch.Segment.line(Hatch.Line(
+        return Hatch.Segment(
           start: Point(x: 300 + Int.random(in: 0...40) + cloudOffset2, y: baseY),
           end: Point(x: 600 + Int.random(in: 0...40) + cloudOffset2, y: baseY)
-        ))
+       )
       }
 
       let relativeDuration = Double(index) / 60.0

@@ -8,8 +8,8 @@ extension UIButton {
 
   static var standard: UIButton {
     button(
-      font: .systemFont(ofSize: 24),
-      cornerRadius: 8
+      font: .systemFont(ofSize: 24, weight: .medium, width: .condensed),
+      cornerRadius: 10
     )
   }
 
@@ -47,7 +47,7 @@ extension UIButton {
   static func small(height: CGFloat = 44) -> UIButton {
     button(
       font: .systemFont(ofSize: 14),
-      cornerRadius: 0,
+      cornerRadius: 10,
       height: height
     )
   }
@@ -110,11 +110,6 @@ extension UIButton {
     with(titleColor: selectedTitleColor, forState: .selected)
   }
 
-  func with(backgroundColor: UIColor) -> Self {
-    self.backgroundColor = backgroundColor
-    return self
-  }
-
   func with(contentHorizontalAlignment: UIControl.ContentHorizontalAlignment) -> Self {
     self.contentHorizontalAlignment = contentHorizontalAlignment
     return self
@@ -122,6 +117,15 @@ extension UIButton {
 
   func with(contentEdgeInsets: UIEdgeInsets) -> Self {
     self.contentEdgeInsets = contentEdgeInsets
+    return self
+  }
+}
+
+
+extension UIView {
+
+  func with(backgroundColor: UIColor) -> Self {
+    self.backgroundColor = backgroundColor
     return self
   }
 

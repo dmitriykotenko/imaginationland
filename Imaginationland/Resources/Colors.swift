@@ -10,6 +10,10 @@ extension UIColor {
     .black
   }
 
+  static var mainTextColor: UIColor {
+    .white
+  }
+
   static var melodyVisualisationStroke: UIColor {
     .systemGreen
   }

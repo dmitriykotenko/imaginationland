@@ -7,6 +7,13 @@ import UIKit
 
 extension CGPoint {
 
+  var asZeroSizeRect: CGRect {
+    .init(
+      origin: self,
+      size: .zero
+    )
+  }
+
   static func + (point: CGPoint,
                  offset: CGSize) -> CGPoint {
     .init(

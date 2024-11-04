@@ -28,4 +28,14 @@ struct Cartoon: Equatable, Hashable, Codable, Buildable {
 
   var hatches: [Hatch] { shots.flatMap(\.hatches) }
   var segments: [Hatch.Segment] { shots.flatMap(\.hatches).flatMap(\.segments) }
+
+  var isEmpty: Bool {
+    shots.isEmpty || (shots.count == 1 && shots[0].hatches.isEmpty)
+  }
+
+  var canHaveMoreShots: Bool {
+    shots.count < Int.max
+  }
+
+  var isNotEmpty: Bool { !isEmpty }
 }

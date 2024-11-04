@@ -13,7 +13,6 @@ class CartoonView: View {
   var rasterizedShots: [UIImage] = []
 
   var rasterizationCache: ShotsCache?
-  
 
   private let titleLabel = UILabel.large
     .with(textColor: .buttonTintColor)
@@ -29,6 +28,8 @@ class CartoonView: View {
 
   private lazy var previousCanvasView = CanvasView(cartoonist: cartoonist)
 
+  private lazy var animationGeneratorView = AnimationGeneratorView(cartoonist: cartoonist)
+
   private let canvasBackgroundView = UIImageView.imageView(
     image: .canvasBackground,
     size: nil
@@ -37,18 +38,39 @@ class CartoonView: View {
 
   private lazy var brushChooserView = BrushChooserView(cartoonist: cartoonist)
 
+  private lazy var buttonsPanel = UIView.horizontalStack(
+    distribution: .fillEqually,
+    subviews: [
+      buttons.brush,
+      buttons.eraser,
+      buttons.undo,
+      buttons.redo,
+      buttons.appendShot,
+      buttons.duplicateShot,
+      buttons.deleteShot,
+      buttons.deleteEverything,
+      buttons.appendRandomAnimation,
+      buttons.play
+    ]
+  )
+
   private let buttons = (
     undo: UIButton.iconic(image: .undoIcon),
     redo: UIButton.iconic(image: .redoIcon),
     brush: UIButton.iconic(image: .brushIcon),
     eraser: UIButton.iconic(image: .eraserIcon),
     appendShot: UIButton.iconic(image: .pictureIcon),
+    duplicateShot: UIButton.iconic(image: .twoFingersIcon),
     deleteShot: UIButton.iconic(image: .trashcanIcon),
+    deleteEverything: UIButton.iconic(image: .nuclearExplosionIcon),
+    appendRandomAnimation: UIButton.iconic(image: .magicWand1icon),
     play: UIButton.iconic(
       images: [.normal: .playIcon, .selected: .stopIcon],
       tintColors: [.normal: .buttonTintColor]
     )
   )
+
+  private lazy var shotsRibbon = ShotsRibbon(cartoonist: cartoonist)
 
   required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
@@ -67,6 +89,13 @@ class CartoonView: View {
     addCanvas()
     addPlaybackView()
     addButtons()
+    addShotsRibbon()
+
+    animationGeneratorView.isHidden = true
+    addSubview(animationGeneratorView)
+    animationGeneratorView.snp.makeConstraints {
+      $0.edges.equalToSuperview()
+    }
   }
 
   private func addTitleLabel() {
@@ -126,23 +155,11 @@ class CartoonView: View {
       $0.leading.trailing.equalTo(safeAreaLayoutGuide)
     }
 
-    let buttonsPanel = UIView.horizontalStack(
-      distribution: .fillEqually,
-      subviews: [
-        buttons.brush,
-        buttons.eraser,
-        buttons.undo,
-        buttons.redo,
-        buttons.appendShot,
-        buttons.deleteShot,
-        buttons.play
-      ]
-    )
-
     addSubview(buttonsPanel)
     buttonsPanel.snp.makeConstraints {
       $0.top.equalTo(brushChooserView.snp.bottom)
-      $0.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
+      $0.leading.trailing.equalTo(safeAreaLayoutGuide)
+//      $0.leading.trailing.bottom.equalTo(safeAreaLayoutGuide)
     }
 
     let pearlBackground = PearlView()
@@ -157,7 +174,10 @@ class CartoonView: View {
     bind(button: buttons.brush, toAction: #selector(enableBrush))
     bind(button: buttons.eraser, toAction: #selector(enableEraser))
     bind(button: buttons.appendShot, toAction: #selector(appendShot))
+    bind(button: buttons.duplicateShot, toAction: #selector(duplicateShot))
+    bind(button: buttons.appendRandomAnimation, toAction: #selector(appendRandomAnimation))
     bind(button: buttons.deleteShot, toAction: #selector(deleteShot))
+    bind(button: buttons.deleteEverything, toAction: #selector(deleteEverything))
     bind(button: buttons.play, toAction: #selector(play))
   }
 
@@ -168,6 +188,14 @@ class CartoonView: View {
       action: action,
       for: .touchUpInside
     )
+  }
+
+  private func addShotsRibbon() {
+    addSubview(shotsRibbon)
+    shotsRibbon.snp.makeConstraints {
+      $0.top.equalTo(buttonsPanel.snp.bottom)
+      $0.bottom.leading.trailing.equalTo(safeAreaLayoutGuide)
+    }
   }
 
   @objc private func undoHatch() {
@@ -190,8 +218,20 @@ class CartoonView: View {
     cartoonist ! .appendShot
   }
 
+  @objc private func duplicateShot() {
+    cartoonist ! .duplicateShot(id: table.currentShotId)
+  }
+
   @objc private func deleteShot() {
-    cartoonist ! .deleteLastShot
+    cartoonist ! .deleteShot(id: table.currentShot.id)
+  }
+
+  @objc private func deleteEverything() {
+    cartoonist ! .deleteEverything
+  }
+
+  @objc private func appendRandomAnimation() {
+    cartoonist ! .showAnimationGeneratorView
   }
 
   @objc private func play() {
@@ -203,9 +243,9 @@ class CartoonView: View {
   }
 
   private func tableUpdated(_ newTable: Cartoonist.Table) {
-    print("Cartoon's view needs to update.")
-    print("Cartoon hatches count: \(table.cartoon.hatches.count)")
-    print("Cartoon segments count: \(table.cartoon.segments.count)")
+//    print("Cartoon's view needs to update.")
+//    print("Cartoon hatches count: \(table.cartoon.hatches.count)")
+//    print("Cartoon segments count: \(table.cartoon.segments.count)")
 
     table = newTable
 
@@ -220,15 +260,18 @@ class CartoonView: View {
     canvasView.isHidden = table.isPlaying
     previousCanvasView.isHidden = table.isPlaying
 
-    canvasView.shot = table.cartoon.shots.last!
-    previousCanvasView.shot = table.cartoon.shots.dropLast().last ?? .empty
+//    print("Current shot index: \(table.currentShotIndex)")
+    canvasView.shot = table.currentShot
+
+    previousCanvasView.shot = 
+      table.cartoon.shots.prefix { $0.id != table.currentShotId }.last ?? .empty
+
     canvasView.setNeedsDisplay()
     previousCanvasView.setNeedsDisplay()
   }
 
   private func updatePlaybackView() {
-    initRasterizationsForPlaybackView()
-    addLastShotToPlaybackView()
+    updatePlaybackImages()
 
     playbackView.isHidden = !table.isPlaying
 
@@ -240,36 +283,34 @@ class CartoonView: View {
     }
   }
 
-  private func initRasterizationsForPlaybackView() {
+  private func updatePlaybackImages() {
     guard let rasterizationCache else { return }
 
-    if playbackView.animationImages == nil {
-      playbackView.animationImages = 
-        table.cartoon.shots.compactMap { rasterizationCache.rasterizedVersion(of: $0) }
-    }
-  }
+    playbackView.animationImages =
+      table.cartoon.shots.compactMap { rasterizationCache.rasterizedVersion(of: $0) }
 
-  private func addLastShotToPlaybackView() {
-    guard let rasterizedShot = rasterizedVersionOfLastShot else { return }
-
-    if playbackView.animationImages?.count != table.cartoon.shots.count {
-      playbackView.animationImages = (playbackView.animationImages ?? []) + [rasterizedShot]
-    } else {
-      playbackView.animationImages![playbackView.animationImages!.count - 1] = rasterizedShot
-    }
+    playbackView.transform = .init(scaleX: 1, y: -1)
   }
 
   private func updateBrushChooserView() {
-    brushChooserView.alpha = (table.filling == .eraser) ? 0.25 : 1
-    brushChooserView.isUserInteractionEnabled = (table.filling != .eraser)
+    let shouldBeEnabled = (table.filling != .eraser) && !table.isPlaying
+    brushChooserView.isUserInteractionEnabled = shouldBeEnabled
+    brushChooserView.alpha = shouldBeEnabled ? 1 : 0.25
   }
 
   private func updateButtons() {
+    buttons.brush.isEnabled = !table.isPlaying
+    buttons.eraser.isEnabled = !table.isPlaying
+
     buttons.appendShot.isEnabled = table.canAppendShot
-    buttons.deleteShot.isEnabled = table.canDeleteLastShot
+    buttons.duplicateShot.isEnabled = table.canDuplicateShot
+    buttons.appendRandomAnimation.isEnabled = table.canAppendRandomAnimation
+
+    buttons.deleteShot.isEnabled = table.canDeleteCurrentShot
+    buttons.deleteEverything.isEnabled = table.canDeleteEverything
 
     buttons.play.isEnabled = table.canPlayCartoon
-    buttons.play.isSelected = table.isPlaying
+    buttons.play.setImage(table.isPlaying ? .stopIcon : .playIcon, for: .normal)
 
     buttons.undo.isEnabled = table.canUndo
     buttons.redo.isEnabled = table.canRedo
@@ -288,15 +329,11 @@ class CartoonView: View {
       )
     }
 
-    if let lastShot = table.cartoon.lastShot {
-      rasterizationCache?.add(shot: lastShot)
-    }
+    rasterizationCache?.add(shot: table.currentShot)
   }
 
-  private var rasterizedVersionOfLastShot: UIImage? {
-    table.cartoon.lastShot.flatMap {
-      rasterizationCache?.rasterizedVersion(of: $0)
-    }
+  private var rasterizedVersionOfCurrentShot: UIImage? {
+    rasterizationCache?.rasterizedVersion(of: table.currentShot)
   }
 }
 

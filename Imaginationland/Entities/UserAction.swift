@@ -7,10 +7,19 @@ import Foundation
 enum UserAction: Equatable, Hashable, Codable, Buildable {
 
   case addHatchSegment(Hatch.Segment, toShot: Shot)
+  case addHatchSegments([Hatch.Segment], toShot: Shot)
   case commitHatch
 
   case appendShot
-  case deleteLastShot
+  case duplicateShot(id: UUID)
+  case showAnimationGeneratorView
+  case hideAnimationGeneratorView
+  case appendRandomAnimation(shotsCount: Int)
+
+  case deleteShot(id: UUID)
+  case deleteEverything
+  
+  case startEditingOfShot(id: UUID)
 
   case undoHatch
   case redoHatch

@@ -12,13 +12,33 @@ struct ShotDrawer {
   var frame: Rect
   var cgFrame: CGRect
 
+  var numberOfRasterizedHatches: Int
+  var rasterizedPartOfShot: UIImage?
+  var newHatches: [Hatch]
+
   @discardableResult func draw() -> UIImage {
-    let image = buildImage()
-    image.draw(in: cgFrame)
-    return image
+    buildImage()
   }
 
   private func buildImage() -> UIImage {
+    let builder = ShotImageBuilder(
+      shot: shot,
+      context: context,
+      frame: frame,
+      cgFrame: cgFrame,
+      numberOfRasterizedHatches: numberOfRasterizedHatches,
+      rasterizedPartOfShot: rasterizedPartOfShot,
+      newHatches: newHatches
+    )
+
+    builder.buildImage()
+    
+    let cgImage = context.makeImage()
+
+    return UIImage(cgImage: cgImage!, scale: UIScreen.main.scale, orientation: .downMirrored)
+  }
+
+  private func buildImage2() -> UIImage {
     let scale = UIScreen.main.scale
 
     UIGraphicsBeginImageContextWithOptions(cgFrame.size, false, scale)
@@ -28,7 +48,10 @@ struct ShotDrawer {
         shot: shot,
         context: cgContext,
         frame: frame,
-        cgFrame: cgFrame
+        cgFrame: cgFrame,
+        numberOfRasterizedHatches: numberOfRasterizedHatches,
+        rasterizedPartOfShot: rasterizedPartOfShot,
+        newHatches: newHatches
       )
 
       builder.buildImage()
@@ -38,6 +61,15 @@ struct ShotDrawer {
 
     UIGraphicsEndImageContext()
 
+//    return image!
     return UIImage(cgImage: image!.cgImage!, scale: scale, orientation: .up)
+  }
+}
+
+
+extension UIImage {
+
+  var flippedVertically: UIImage {
+    UIImage(cgImage: cgImage!, scale: scale, orientation: .downMirrored)
   }
 }

@@ -8,6 +8,13 @@ struct Point: Equatable, Hashable, Codable, Buildable {
   var x: Int
   var y: Int
 
+  var asZeroSizeRect: Rect {
+    .init(
+      origin: self, 
+      size: .zero
+    )
+  }
+
   static let zero = Point(x: 0, y: 0)
 
   static func + (point: Point,

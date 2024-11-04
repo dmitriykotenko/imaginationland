@@ -48,6 +48,10 @@ extension Array {
     isNotEmpty ? removeLast() : nil
   }
 
+  mutating func removeSafely(where condition: (Element) -> Bool) {
+    self = filter { !condition($0) }
+  }
+
   func chunks(length: Int) -> [[Element]] {
     stride(from: 0, to: count, by: length)
       .map { Array(dropFirst($0).prefix(length)) }

@@ -15,6 +15,12 @@ extension UIImage {
   static let pictureIcon = UIImage(named: "picture.svg")
   static let cameraIcon = UIImage(named: "camera.svg")
 
+  static let twoFingersIcon = UIImage(named: "two-fingers.svg")
+  static let nuclearExplosionIcon = UIImage(named: "nuclear-explosion.svg")
+  static let magicWand1icon = UIImage(named: "magic-wand1.svg")
+  static let magicWand3icon = UIImage(named: "magic-wand3.svg")
+
+
   static let playIcon = UIImage(named: "play.pdf")!
   static let stopIcon = UIImage(named: "stop.pdf")!
 

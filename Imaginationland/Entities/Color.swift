@@ -29,6 +29,15 @@ struct Color: Equatable, Hashable, Codable, Buildable {
 
   static let basicPink = Color(red: 255, green: 0, blue: 98, alpha: 1)
 
+  static var random: Color {
+    .init(
+      red: .random(in: 0...255),
+      green: .random(in: 0...255),
+      blue: .random(in: 0...255),
+      alpha: 1
+    )
+  }
+
   func mixed(with other: Color,
              selfPortion: Double) -> Color {
     .init(

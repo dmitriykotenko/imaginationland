@@ -23,3 +23,15 @@ extension CGRect {
 
 extension CGRect: Buildable {}
 extension CGPoint: Buildable {}
+
+
+extension [CGRect] {
+
+  var union: CGRect {
+    if isEmpty {
+      .zero
+    } else {
+      dropFirst().reduce(self[0]) { $0.union($1) }
+    }
+  }
+}

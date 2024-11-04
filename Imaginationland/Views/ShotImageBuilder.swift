@@ -12,6 +12,10 @@ struct ShotImageBuilder {
   var frame: Rect
   var cgFrame: CGRect
 
+  var numberOfRasterizedHatches: Int
+  var rasterizedPartOfShot: UIImage?
+  var newHatches: [Hatch]
+
   var pointConverter: PointConverter {
     .init(canvasFrame: frame, cgFrame: cgFrame)
   }
@@ -25,9 +29,27 @@ struct ShotImageBuilder {
   )
 
   func buildImage() {
+//    print("Build shot...")
+
+    if rasterizedPartOfShot == nil {
+      context.clear(cgFrame)
+    }
+
     context.setLineCap(.round)
     context.setLineJoin(.round)
-    shot.hatches.forEach(draw(hatch:))
+
+//    rasterizedPartOfShot?.cgImage.map {
+//      context.draw($0, in: cgFrame, byTiling: false)
+//    }
+
+//    print("[RRR] (Rasterized, non-rasterized): ")
+//    print("[RRR] (\(numberOfRasterizedHatches), \(shot.hatches.count - numberOfRasterizedHatches))")
+//    print("[RRR] Segments to draw: \(newHatches.flatMap(\.segments).count)")
+
+    newHatches.forEach(draw(hatch:))
+//    shot.hatches
+//      .dropFirst(numberOfRasterizedHatches)
+//      .forEach(draw(hatch:))
 //
 //    context.setLineWidth(6)
 //    context.setStrokeColor(UIColor.systemMint.cgColor)
@@ -56,19 +78,8 @@ struct ShotImageBuilder {
   }
 
   private func draw(segment: Hatch.Segment) {
-    switch segment {
-    case .line(let line):
-      context.move(to: cgPoint(from: line.start))
-      context.addLine(to: cgPoint(from: line.end))
-    case .spline(let spline):
-      let bezierPath = UIBezierPath()
-      bezierPath.move(to: cgPoint(from: spline.start))
-      bezierPath.addCurve(
-        to: cgPoint(from: spline.end),
-        controlPoint1: cgPoint(from: spline.startControlPoint),
-        controlPoint2: cgPoint(from: spline.endControlPoint)
-      )
-    }
+    context.move(to: cgPoint(from: segment.start))
+    context.addLine(to: cgPoint(from: segment.end))
   }
 
   private func cgPoint(from point: Point) -> CGPoint {

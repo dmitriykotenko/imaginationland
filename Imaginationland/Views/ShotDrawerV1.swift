@@ -55,19 +55,8 @@ struct ShotDrawerV1 {
   }
 
   private func draw(segment: Hatch.Segment) {
-    switch segment {
-    case .line(let line):
-      context.move(to: cgPoint(from: line.start))
-      context.addLine(to: cgPoint(from: line.end))
-    case .spline(let spline):
-      let bezierPath = UIBezierPath()
-      bezierPath.move(to: cgPoint(from: spline.start))
-      bezierPath.addCurve(
-        to: cgPoint(from: spline.end),
-        controlPoint1: cgPoint(from: spline.startControlPoint),
-        controlPoint2: cgPoint(from: spline.endControlPoint)
-      )
-    }
+    context.move(to: cgPoint(from: segment.start))
+    context.addLine(to: cgPoint(from: segment.end))
   }
 
   private func cgPoint(from point: Point) -> CGPoint {
